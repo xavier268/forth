@@ -24,7 +24,8 @@ func (i *Interpreter) Prompt() string {
 	return fmt.Sprintf("%s%d>%s ", ColorGreen, len(i.ds.data), ColorOff)
 }
 
-// Repl is the main Read-Evaluate-Print-Loop
+// Repl is the main Read-Evaluate-Print-Loop.
+// It does a line, then a token scan.
 func (i *Interpreter) Repl() {
 
 	// scanner reads line per line

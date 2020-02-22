@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 )
 
 // Interpreter for forth
@@ -72,23 +73,70 @@ func (i *Interpreter) Abort() {
 // Eval evaluates token.
 func (i *Interpreter) Eval(token string) error {
 
-	// lookup token in dictionnary
-
 	// DEBUG
 	fmt.Println("Evaluating : ", token)
 
-	// panic("not implemented")
+	// lookup token in dictionnary
+	_, _, w, err := i.lookup(token)
+	if err == nil {
+		if i.compileMode {
+			return i.compile(w)
+		}
+		return i.interpret(w)
+
+	}
+
+	// read token as number.
+	num, err := strconv.ParseInt(token, 10, 64)
+	if err != nil {
+		return ErrWordNotFound
+	}
+
+	if i.compileMode {
+		i.compileNum(int(num))
+	} else {
+		i.ds.push(int(num))
+	}
 	return nil
 }
 
-// Lookup most recent token in disctionnary, using the chain of lfa.
-func (i *Interpreter) Lookup(token string) (nfa int, err error) {
+// lookup most recent token in dictionnary, using the chain of lfa.
+func (i *Interpreter) lookup(token string) (nfa int, opcode int, w *word, err error) {
 
-	for nfa = i.mem[UVLastNfa]; i.mem[nfa+1] != 0; nfa = i.mem[nfa+1] {
-		if w := i.words[nfa]; w != nil && w.name == token {
-			return nfa, nil
+	// start of search
+	nfa = i.mem[UVLastNfa]
+	prevnfa := i.mem[nfa+1]
+
+	// loop until found or no previous lfa
+	for nfa > 0 {
+		// opcode is the content of the nfa cell
+		opcode = i.mem[nfa]
+		w := i.words[opcode]
+		//fmt.Println("Testing : ", nfa, w)
+		if w != nil && w.name == token {
+			return nfa, opcode, w, nil
 		}
-	}
-	return 0, ErrWordNotFound
 
+		nfa = prevnfa
+		prevnfa = i.mem[nfa+1]
+	}
+	return 0, 0, nil, ErrWordNotFound
 }
+
+func (i *Interpreter) dumpmem() {
+	fmt.Println("Memory dump, size =  ", len(i.mem))
+	for k, v := range i.mem {
+		fmt.Printf("\t%4d: %8d\n", k, v)
+	}
+}
+
+func (i *Interpreter) dumpwords() {
+	fmt.Println("Words dumps, size = ", len(i.words))
+	for k, w := range i.words {
+		fmt.Printf("\t%4d:%+v\n", k, w)
+	}
+}
+
+func (i *Interpreter) compile(*word) error   { return nil }
+func (i *Interpreter) compileNum(int) error  { return nil }
+func (i *Interpreter) interpret(*word) error { return nil }

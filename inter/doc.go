@@ -6,9 +6,9 @@ package inter
 //
 // Structure of a dictionary entry :
 //
-// NFA 	->	int	->	a word in the word database, with its flags
-// LFA	->	int	-> 	points to the previous NFA
-// CFA	->	int ->	address of definition word
-// PFA	->	int	-> 	parameters or embedded CFAs
+// NFA 	->  code->	address used as a key to the word
+// LFA	-> 	int	->	points to previous NFA
+// CFA	->	int ->	address of definition word (not for primitives)
+// PFA	->	int	-> 	parameters or embedded CFAs (not for primitives)
 //
 //
