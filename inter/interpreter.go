@@ -77,8 +77,8 @@ func (i *Interpreter) Eval(token string) error {
 	// DEBUG
 	fmt.Println("Evaluating : ", token)
 
-	panic("not implemented")
-
+	// panic("not implemented")
+	return nil
 }
 
 // Lookup most recent token in disctionnary, using the chain of lfa.

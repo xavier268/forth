@@ -1,6 +1,11 @@
 package inter
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strings"
+)
 
 // Color definitions.
 const (
@@ -22,8 +27,22 @@ func (i *Interpreter) Prompt() string {
 // Repl is the main Read-Evaluate-Print-Loop
 func (i *Interpreter) Repl() {
 
-	for {
+	// scanner reads line per line
+	linescan := bufio.NewScanner(os.Stdin)
+	linescan.Split(bufio.ScanLines)
+
+	for { // repl loop for that line only
+
 		fmt.Fprint(i.writer, i.Prompt())
+
+		if !linescan.Scan() {
+			// End of entry or interrupt
+			return
+		}
+
+		i.scanner = bufio.NewScanner(strings.NewReader(linescan.Text()))
+		i.scanner.Split(bufio.ScanWords)
+
 		err := i.Run()
 		if err == ErrQuit {
 			return
@@ -31,6 +50,6 @@ func (i *Interpreter) Repl() {
 		if err != nil {
 			fmt.Fprintf(i.writer, "%s%s%s\n", ColorRed, err.Error(), ColorOff)
 		}
-
 	}
+
 }
