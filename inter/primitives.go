@@ -23,13 +23,13 @@ func (i *Interpreter) addPrimitive(name string, immediate, smudge bool) {
 	// save current here value.
 	nfa := i.mem[UVHere]
 
-	i.alloc(2)                      // allocate 2 cells
-	i.mem[nfa] = len(i.words)       // nfa contains word index as opcode
-	i.mem[nfa+1] = i.mem[UVLastNfa] // link to previous name
-	i.mem[UVLastNfa] = nfa          // update last header
+	i.alloc(1) // allocate 1 cells
+
+	i.mem[nfa] = i.mem[UVLastNfa] // link to previous name
+	i.mem[UVLastNfa] = nfa        // update last header
 
 	// store string and bits separately
-	i.words[len(i.words)] =
+	i.words[nfa] =
 		// name, immediate, smudge, primitive
 		&word{name, immediate, smudge, true}
 }

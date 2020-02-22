@@ -68,6 +68,7 @@ func (i *Interpreter) Run() error {
 func (i *Interpreter) Abort() {
 	i.ds.clear()
 	i.rs.clear()
+	// IP ?
 }
 
 // Eval evaluates token.
@@ -77,7 +78,7 @@ func (i *Interpreter) Eval(token string) error {
 	fmt.Println("Evaluating : ", token)
 
 	// lookup token in dictionnary
-	_, _, w, err := i.lookup(token)
+	_, w, err := i.lookup(token)
 	if err == nil {
 		if i.compileMode {
 			return i.compile(w)
@@ -87,9 +88,9 @@ func (i *Interpreter) Eval(token string) error {
 	}
 
 	// read token as number.
-	num, err := strconv.ParseInt(token, 10, 64)
+	num, err := strconv.ParseInt(token, i.mem[UVBase], 64)
 	if err != nil {
-		return ErrWordNotFound
+		return ErrWordNotFound(token)
 	}
 
 	if i.compileMode {
@@ -101,26 +102,24 @@ func (i *Interpreter) Eval(token string) error {
 }
 
 // lookup most recent token in dictionnary, using the chain of lfa.
-func (i *Interpreter) lookup(token string) (nfa int, opcode int, w *word, err error) {
+func (i *Interpreter) lookup(token string) (nfa int, w *word, err error) {
 
 	// start of search
 	nfa = i.mem[UVLastNfa]
-	prevnfa := i.mem[nfa+1]
+	prevnfa := i.mem[nfa]
 
 	// loop until found or no previous lfa
 	for nfa > 0 {
-		// opcode is the content of the nfa cell
-		opcode = i.mem[nfa]
-		w := i.words[opcode]
+		w := i.words[nfa]
 		//fmt.Println("Testing : ", nfa, w)
 		if w != nil && w.name == token {
-			return nfa, opcode, w, nil
+			return nfa, w, nil
 		}
 
 		nfa = prevnfa
-		prevnfa = i.mem[nfa+1]
+		prevnfa = i.mem[nfa]
 	}
-	return 0, 0, nil, ErrWordNotFound
+	return 0, nil, ErrWordNotFound(token)
 }
 
 func (i *Interpreter) dumpmem() {

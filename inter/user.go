@@ -13,7 +13,9 @@ const (
 
 // Initilize user variables, at the start of the memory
 func (i *Interpreter) initUserVar() {
-	i.alloc(UVEndOfDefinition)
+	i.alloc(UVEndOfDefinition) // allocate memory, set UVHere
+	i.mem[UVBase] = 10         // base 10 default
+
 }
 
 // allocate the number of 0 values on the dictionnary.

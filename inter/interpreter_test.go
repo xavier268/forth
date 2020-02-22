@@ -8,30 +8,30 @@ import (
 func TestLookupToken(t *testing.T) {
 	var s string
 	var err error
-	var nfa, opcode int
+	var nfa int
 	var w *word
 
 	i := NewInterpreter()
-	//i.dumpuservars()
-	//i.dumpwords()
-	//i.dumpmem()
+	i.dumpuservars()
+	i.dumpwords()
+	i.dumpmem()
 
 	s = "+"
-	nfa, opcode, w, err = i.lookup(s)
+	nfa, w, err = i.lookup(s)
 	if err != nil {
-		t.Fatal(s, "==>", nfa, opcode, w, err)
+		t.Fatal(s, "==>", nfa, w, err)
 	}
 
 	s = ";"
-	nfa, opcode, w, err = i.lookup(s)
+	nfa, w, err = i.lookup(s)
 	if err != nil {
-		t.Fatal(s, "==>", nfa, opcode, w, err)
+		t.Fatal(s, "==>", nfa, w, err)
 	}
 
 	s = "nonexistent"
-	nfa, opcode, w, err = i.lookup(s)
+	nfa, w, err = i.lookup(s)
 	if err == nil {
-		fmt.Println(s, "==>", nfa, opcode, w, err)
+		fmt.Println(s, "==>", nfa, w, err)
 		t.Fail()
 	}
 

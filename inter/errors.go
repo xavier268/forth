@@ -6,7 +6,9 @@ import "errors"
 var ErrStackUnderflow error = errors.New("stack underflow")
 
 // ErrWordNotFound error
-var ErrWordNotFound error = errors.New("unknown word")
+func ErrWordNotFound(token string) error {
+	return errors.New("token '" + token + "' was not found")
+}
 
 // ErrQuit normal exit
 var ErrQuit error = errors.New("bye, ... exiting")
