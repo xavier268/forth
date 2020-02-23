@@ -26,3 +26,10 @@ func ErrInvalidCfa(cfa int) error {
 
 // ErrQuit normal exit
 var ErrQuit = errors.New("bye, ... exiting")
+
+// Abort reset stacks and interpreter
+func (i *Interpreter) Abort() {
+	i.ds.clear()
+	i.rs.clear()
+	// IP ?
+}
