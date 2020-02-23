@@ -19,13 +19,13 @@ const (
 // Prompt the user for entry
 func (i *Interpreter) Prompt() string {
 	if i.compileMode {
-		return fmt.Sprintf("%scompile:%s ", ColorBlue, ColorOff)
+		return fmt.Sprintf("\n%scompile:%s ", ColorBlue, ColorOff)
 	}
-	return fmt.Sprintf("%s%d>%s ", ColorGreen, len(i.ds.data), ColorOff)
+	return fmt.Sprintf("\n%srs%vds%v>%s ", ColorGreen, i.rs.data, i.ds.data, ColorOff)
 }
 
 // Repl is the main Read-Evaluate-Print-Loop.
-// It does a line, then a token scan.
+// Does not use the scanner set in Interpreter.
 func (i *Interpreter) Repl() {
 
 	// scanner reads line per line
