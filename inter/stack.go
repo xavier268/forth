@@ -11,8 +11,8 @@ func newStack() *stack {
 }
 
 // Push on stack
-func (s *stack) push(x int) {
-	s.data = append(s.data, x)
+func (s *stack) push(x ...int) {
+	s.data = append(s.data, x...)
 }
 
 // empty test if stack is empty

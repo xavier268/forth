@@ -42,71 +42,81 @@ func TestLookupToken(t *testing.T) {
 
 func TestOperations(t *testing.T) {
 
-	testInOut(t, "2 3 + ", "")
-	testInOut(t, "2 3 + . ", " 5")
-	testInOut(t, "2 3 . ", " 3")
-	testInOut(t, "2 3 4 . + .", " 4 5")
+	f(t, "2 3 + ", "")
+	f(t, "2 3 + . ", " 5")
+	f(t, "2 3 . ", " 3")
+	f(t, "2 3 4 . + .", " 4 5")
 
-	testInOut(t, "2 3 - . ", " -1")
-	testInOut(t, "3 2 - . ", " 1")
+	f(t, "2 3 - . ", " -1")
+	f(t, "3 2 - . ", " 1")
 
-	testInOut(t, ".", "", true)        // overflown error expected
-	testInOut(t, ". 1 . ", "", true)   // overflow, then normal operation
-	testInOut(t, " 1 . .", " 1", true) // normal then overflow
+	f(t, "2 3 SWAP . .  ", " 2 3")
+	f(t, "3 DUP +  .  ", " 6")
+	f(t, "3 DROP  ", "")
+	f(t, "3 DROP . ", "", true)
+	f(t, "3 4 DROP . ", " 3")
+
+	f(t, ".", "", true)        // overflown error expected
+	f(t, ". 1 . ", "", true)   // overflow, then normal operation
+	f(t, " 1 . .", " 1", true) // normal then overflow
 
 }
 func TestComment(t *testing.T) {
 
-	testInOut(t, "2 3 ( 55 kjhkjh ) + ", "")
-	testInOut(t, "2 3 + . ", " 5")
-	testInOut(t, "2 ( ; kjhkjh ) 3 . ", " 3")
-	testInOut(t, "2 3 ( 33 ) 4 . + .", " 4 5")
+	f(t, "2 3 ( 55 kjhkjh ) + ", "")
+	f(t, "2 3 + . ", " 5")
+	f(t, "2 ( ; kjhkjh ) 3 . ", " 3")
+	f(t, "2 3 ( 33 ) 4 . + .", " 4 5")
 
-	testInOut(t, ": plus + ( ; <- immediate word have no effect ) . ; : plusplus plus plus ; 1 2 3 4 plusplus", " 7 3")
+	f(t, ": plus + ( ; <- immediate word have no effect ) . ; "+
+		": plusplus plus plus ; "+
+		"1 2 3 4 plusplus",
+		" 7 3")
 
 }
 func TestVars(t *testing.T) {
 
-	testInOut(t, "HERE @", "", true)
-	testInOut(t, "HERE HERE - . ", " 0")
-	testInOut(t, "HERE 1 - @", "")
-	testInOut(t, "HERE 3 ALLOT HERE - . ", " -3")
-	testInOut(t, "55 , HERE 1 - @ . ", " 55")
-	testInOut(t, "2 ALLOT 55  HERE 2 - !  HERE 2 - @ .  ", " 55")
+	f(t, "HERE @", "", true)
+	f(t, "HERE HERE - . ", " 0")
+	f(t, "HERE 1 - @", "")
+	f(t, "HERE 3 ALLOT HERE - . ", " -3")
+	f(t, "55 , HERE 1 - @ . ", " 55")
+	f(t, "2 ALLOT 55  HERE 2 - !  HERE 2 - @ .  ", " 55")
 
 }
 
 func TestNoop(t *testing.T) {
 
-	testInOut(t, "NOOP", "")
+	f(t, "NOOP", "")
 
-	testInOut(t, "2 3 + NOOP . ", " 5")
-	testInOut(t, "2 NOOP 3 . ", " 3")
-	testInOut(t, "NOOP 2 3 4 . + .", " 4 5")
+	f(t, "2 3 + NOOP . ", " 5")
+	f(t, "2 NOOP 3 . ", " 3")
+	f(t, "NOOP 2 3 4 . + .", " 4 5")
 
-	testInOut(t, ": toto NOOP ; toto", "")
-	testInOut(t, ": plus NOOP + ; 3 7 plus .", " 10")
-	testInOut(t, ": plus NOOP + . ; 3 7 plus", " 10")
+	f(t, ": toto NOOP ; toto", "")
+	f(t, ": plus NOOP + ; 3 7 plus .", " 10")
+	f(t, ": plus NOOP + . ; 3 7 plus", " 10")
 
-	testInOut(t, ": p1 1 NOOP + NOOP ; : p2 NOOP 2 + ; : p3 p1 p2 ; 5 p3 .", " 8")
-	testInOut(t, ": plus + NOOP . ; : plusplus plus NOOP plus ; 1 2 3 4 plusplus", " 7 3")
+	f(t, ": p1 1 NOOP + NOOP ; : p2 NOOP 2 + ; : p3 p1 p2 ; 5 p3 .", " 8")
+	f(t, ": plus + NOOP . ; : plusplus plus NOOP plus ; 1 2 3 4 plusplus",
+		" 7 3")
 
 }
 
 func TestDefinition(t *testing.T) {
 
-	testInOut(t, ": toto ; toto", "")
-	testInOut(t, ": plus + ; 3 7 plus .", " 10")
-	testInOut(t, ": plus + . ; 3 7 plus", " 10")
+	f(t, ": toto ; toto", "")
+	f(t, ": plus + ; 3 7 plus .", " 10")
+	f(t, ": plus + . ; 3 7 plus", " 10")
 
-	testInOut(t, ": p1 1 + ; : p2 2 + ; : p3 p1 p2 ; 5 p3 .", " 8")
-	testInOut(t, ": plus + . ; : plusplus plus plus ; 1 2 3 4 plusplus", " 7 3")
+	f(t, ": p1 1 + ; : p2 2 + ; : p3 p1 p2 ; 5 p3 .", " 8")
+	f(t, ": plus + . ; : plusplus plus plus ; 1 2 3 4 plusplus", " 7 3")
 
 }
 
 // generic test.
 // provide a value for expecterror if you expect an error.
-func testInOut(t *testing.T, source, expect string, expecterror ...bool) {
+func f(t *testing.T, source, expect string, expecterror ...bool) {
 	in := strings.NewReader(source)
 	out := bytes.NewBuffer(nil)
 

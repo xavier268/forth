@@ -16,6 +16,9 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("!", false)
 	i.addPrimitive("HERE", false)
 	i.addPrimitive("@", false)
+	i.addPrimitive("DUP", false)
+	i.addPrimitive("SWAP", false)
+	i.addPrimitive("DROP", false)
 	i.addPrimitive(",", false)
 	i.addPrimitive("+", false)
 	i.addPrimitive("-", false)
@@ -132,6 +135,29 @@ func (i *Interpreter) interpretPrim() {
 			return
 		}
 		fmt.Fprintf(i.writer, " %s", strconv.FormatInt(int64(n), i.base))
+
+	case "DROP": // ( n -- n n )
+		_, err := i.ds.pop()
+		if err != nil {
+			i.Err = err
+			return
+		}
+
+	case "DUP": // ( n -- n n )
+		n, err := i.ds.top()
+		if err != nil {
+			i.Err = err
+			return
+		}
+		i.ds.push(n)
+
+	case "SWAP": // (a b -- b a )
+		l := len(i.ds.data)
+		if l < 2 {
+			i.Err = ErrStackUnderflow
+			return
+		}
+		i.ds.data[l-2], i.ds.data[l-1] = i.ds.data[l-1], i.ds.data[l-2]
 
 	case "+":
 		n, err := i.ds.pop()
