@@ -101,7 +101,7 @@ func (i *Interpreter) interpretPrim() {
 			// shift back to interpret mode
 			fmt.Println("Switching to interpret mode")
 			i.compileMode = false
-			return
+
 		}
 		// normal interpretation in compound word
 		// pop one more return address

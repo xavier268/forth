@@ -54,7 +54,7 @@ func TestOperations(t *testing.T) {
 	testInOut(t, ": plus + ; 3 7 plus .", " 10")
 	testInOut(t, ": plus + . ; 3 7 plus", " 10")
 
-	testInOut(t, ": plus + . ; : plusplus plus plus ; 1 2 3 plusplus .", " 6")
+	testInOut(t, ": plus + . ; : plusplus plus plus ; 1 2 3 4 plusplus", " 7 3")
 
 }
 

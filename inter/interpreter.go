@@ -158,14 +158,14 @@ func (i *Interpreter) interpret() {
 	if i.Err != nil {
 		return
 	}
-
+	// primitive, don't dereference a pseudo cfa
 	if i.isPrimitive() {
 		i.interpretPrim()
 		return
 	}
 
 	// compound word
-	i.rs.push(i.ip + 1) // push return address (up to ';' to pop it)
+	i.rs.push(i.ip + 1) // push next address on return stack
 	i.ip = i.mem[i.ip]  // jump to the dereferenced address
 	i.interpret()       // recurse on the dereferenced cfa
 	return
