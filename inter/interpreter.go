@@ -26,8 +26,6 @@ type Interpreter struct {
 	Err error
 	// next address to interpret
 	ip int
-	// here : next free cell in the memory/dictionnary
-	here int
 
 	// lastNfa, lastPrimitiveNfa
 	lastNfa, lastPrimitiveNfa int
@@ -43,7 +41,6 @@ func NewInterpreter() *Interpreter {
 	i.words = make(map[int]*word)
 
 	i.initUserVars()
-	i.here = len(i.mem)
 	i.initPrimitives()
 	return i
 }
@@ -143,7 +140,7 @@ func (i *Interpreter) compile(wcfa int) {
 	}
 
 	i.alloc(1)
-	i.mem[i.here-1] = wcfa
+	i.mem[len(i.mem)-1] = wcfa
 	return
 }
 
@@ -160,7 +157,8 @@ func (i *Interpreter) compileNum(num int) {
 	}
 	// write cfa of "litteral" and number
 	i.alloc(2)
-	i.mem[i.here-2], i.mem[i.here-1] = nfalitt+1, num
+	h := len(i.mem)
+	i.mem[h-2], i.mem[h-1] = nfalitt+1, num
 	return
 }
 

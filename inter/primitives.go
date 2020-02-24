@@ -79,8 +79,7 @@ func (i *Interpreter) interpretPrim() {
 			i.Err = err
 			return
 		}
-		i.alloc(1)
-		i.mem[i.here-1] = n
+		i.mem = append(i.mem, n)
 
 	case "ALLOT": // (n --) Add n cells to the dictionnay.
 
@@ -95,7 +94,7 @@ func (i *Interpreter) interpretPrim() {
 	case "HERE": // ( -- addr ) get the address of the first availbale cell of the memory.
 		// CAUTION : the memory at HERE and beyond is NOT ACCESSIBLE unless allocated.
 
-		i.ds.push(i.here)
+		i.ds.push(len(i.mem))
 
 	case "!": // (n addr --) store n at the given address, if it is allocated
 		a, err := i.ds.pop()
@@ -217,10 +216,6 @@ func (i *Interpreter) interpretPrim() {
 		// create header
 		i.createHeader(token)
 
-		// add cfa of the definition word, :
-		// i.alloc(1)
-		// i.mem[i.here-1] = cfa
-
 		// switch to compile mode
 		// fmt.Println("Switching to compile mode")
 		i.compileMode = true
@@ -230,7 +225,7 @@ func (i *Interpreter) interpretPrim() {
 
 			// write cfa
 			i.alloc(1)
-			i.mem[i.here-1] = nfa + 1
+			i.mem[len(i.mem)-1] = nfa + 1
 
 			// shift back to interpret mode
 			// fmt.Println("Switching to interpret mode")
