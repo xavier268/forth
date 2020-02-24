@@ -8,7 +8,7 @@ import (
 func (i *Interpreter) initPrimitives() {
 
 	//           name, immediate
-	i.addPrimitive("EXIT", false)
+	i.addPrimitive("BYE", false)
 	i.addPrimitive("ABORT", false)
 	i.addPrimitive("RESET", false)
 	i.addPrimitive("INFO", false)
@@ -58,7 +58,7 @@ func (i *Interpreter) interpretPrim() {
 
 	switch w.name {
 
-	case "EXIT": // Exit program.
+	case "BYE": // Exit program.
 		i.Err = ErrQuit
 		return
 

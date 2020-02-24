@@ -17,7 +17,7 @@ func TestLookupToken(t *testing.T) {
 
 	i := NewInterpreter()
 
-	i.dump()
+	//i.dump()
 
 	s = "+"
 	nfa = i.lookup(s)
