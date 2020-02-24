@@ -51,17 +51,17 @@ func NewInterpreter() *Interpreter {
 }
 
 // Run the interpreter, until eof
-func (i *Interpreter) Run() error {
+func (i *Interpreter) Run() {
 	for {
 		if !i.scanner.Scan() {
 			// EOF
-			return nil
+			return
 		}
 		token := i.scanner.Text()
 		i.Eval(token)
 		if i.Err != nil {
 			i.Abort()
-			return i.Err
+			return
 		}
 
 	}
@@ -137,6 +137,7 @@ func (i *Interpreter) compile(wcfa int) {
 
 // compile a litteral number
 func (i *Interpreter) compileNum(num int) {
+
 	if i.Err != nil {
 		return
 	}

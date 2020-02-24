@@ -15,6 +15,11 @@ func (s *stack) push(x int) {
 	s.data = append(s.data, x)
 }
 
+// empty test if stack is empty
+func (s *stack) empty() bool {
+	return len(s.data) == 0
+}
+
 // clear stack
 func (s *stack) clear() {
 	s.data = []int{}

@@ -45,12 +45,15 @@ func (i *Interpreter) Repl() {
 		i.scanner = bufio.NewScanner(strings.NewReader(linescan.Text()))
 		i.scanner.Split(bufio.ScanWords)
 
-		err := i.Run()
-		if err == ErrQuit {
+		i.Run()
+		// normal exit
+		if i.Err == ErrQuit {
 			return
 		}
-		if err != nil {
-			fmt.Fprintf(i.writer, "%s%s%s\n", ColorRed, err.Error(), ColorOff)
+		// all other errors, print and reset error
+		if i.Err != nil {
+			fmt.Fprintf(i.writer, "%s%s%s\n", ColorRed, i.Err.Error(), ColorOff)
+			i.Err = nil
 		}
 	}
 
