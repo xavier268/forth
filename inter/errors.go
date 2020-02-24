@@ -14,6 +14,9 @@ var ErrLiteral = errors.New("sYou cannot use LITERAL in this context (no return 
 // ErrNotPrimitive error
 var ErrNotPrimitive = errors.New("not a valid primitive cfa")
 
+// ErrMissingParent error
+var ErrMissingParent = errors.New("missing closing parenthesis")
+
 // ErrWordNotFound error
 func ErrWordNotFound(token string) error {
 	return errors.New("token '" + token + "' was not found")

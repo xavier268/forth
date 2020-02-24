@@ -20,6 +20,8 @@ type Interpreter struct {
 	words map[int]*word
 	// CompileMode (or interpret) mode ?
 	compileMode bool
+	//are we currently porcessing a comment ?
+	commentMode bool
 	// Err contains first interpreter error
 	Err error
 	// next address to interpret
@@ -57,6 +59,20 @@ func (i *Interpreter) Run() {
 			return
 		}
 		token := i.scanner.Text()
+
+		// remove comments
+		if i.commentMode {
+			if token == ")" {
+				i.commentMode = false
+			}
+			continue // read next
+		}
+		if !i.commentMode && token == "(" {
+			i.commentMode = true
+			continue // read next
+		}
+
+		// continue eval ...
 		i.Eval(token)
 		if i.Err != nil {
 			i.Abort()

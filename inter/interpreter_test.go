@@ -55,7 +55,16 @@ func TestOperations(t *testing.T) {
 	testInOut(t, " 1 . .", " 1", true) // normal then overflow
 
 }
+func TestComment(t *testing.T) {
 
+	testInOut(t, "2 3 ( 55 kjhkjh ) + ", "")
+	testInOut(t, "2 3 + . ", " 5")
+	testInOut(t, "2 ( ; kjhkjh ) 3 . ", " 3")
+	testInOut(t, "2 3 ( 33 ) 4 . + .", " 4 5")
+
+	testInOut(t, ": plus + ( ; <- immediate word have no effect ) . ; : plusplus plus plus ; 1 2 3 4 plusplus", " 7 3")
+
+}
 func TestVars(t *testing.T) {
 
 	testInOut(t, "HERE @", "", true)
