@@ -135,7 +135,9 @@ func (i *Interpreter) interpretPrim() {
 			i.Err = err
 			return
 		}
-		fmt.Fprintf(i.writer, " %s", strconv.FormatInt(int64(n), i.base))
+		fmt.Println("DEBUG : BASE = ", i.getBase())
+		fmt.Fprintf(i.writer, " %s",
+			strconv.FormatInt(int64(n), i.getBase()))
 
 	case "DROP": // ( n -- n n )
 		_, err := i.ds.pop()

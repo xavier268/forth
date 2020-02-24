@@ -28,8 +28,7 @@ type Interpreter struct {
 	ip int
 	// here : next free cell in the memory/dictionnary
 	here int
-	// base used for input/output of numbers
-	base int
+
 	// lastNfa, lastPrimitiveNfa
 	lastNfa, lastPrimitiveNfa int
 }
@@ -41,12 +40,10 @@ func NewInterpreter() *Interpreter {
 
 	i.ds, i.rs = newStack(), newStack()
 
-	i.mem = []int{}
 	i.words = make(map[int]*word)
 
-	i.alloc(1)
-	i.base = 10
-
+	i.initUserVars()
+	i.here = len(i.mem)
 	i.initPrimitives()
 	return i
 }
@@ -109,7 +106,7 @@ func (i *Interpreter) Eval(token string) {
 	i.Err = nil
 
 	// read token as number.
-	num, err := strconv.ParseInt(token, i.base, 64)
+	num, err := strconv.ParseInt(token, i.getBase(), 64)
 	if err != nil {
 		i.Err = ErrWordNotFound(token)
 		return
