@@ -4,21 +4,29 @@ import "fmt"
 
 // dump
 func (i *Interpreter) dump() {
-	fmt.Printf("\n%+v\n", i)
-}
 
-// dump
-func (i *Interpreter) dumpmem() {
-	fmt.Println("Memory dump, size =  ", len(i.mem))
-	for k, v := range i.mem {
-		fmt.Printf("\t%4d: %8d\n", k, v)
-	}
-}
-
-// dump
-func (i *Interpreter) dumpwords() {
-	fmt.Println("Words dumps, size = ", len(i.words))
+	fmt.Printf("\nWords dumps, (size : %d)\n--NFA-----CFA----Imm.-----Word---------\n", len(i.words))
 	for k, w := range i.words {
-		fmt.Printf("\t%4d:%+v\n", k, w)
+		fmt.Printf("%4d\t%4d\t%v\t%s\n", k, k+1, w.immediate, w.name)
 	}
+
+	fmt.Printf("Memory dump, (size : %d) ", len(i.mem))
+	for k, v := range i.mem {
+		if k%5 == 0 {
+			fmt.Printf("\n%5d --: ", k)
+		}
+		if k == i.ip {
+			fmt.Printf("%s%5d%s", ColorGreen, v, ColorOff)
+		} else {
+			fmt.Printf("%5d ", v)
+		}
+	}
+	fmt.Println()
+
+	fmt.Println("IP : ", i.ip)
+	fmt.Println("Compile : ", i.compileMode)
+	fmt.Println("DS : ", i.ds)
+	fmt.Println("RS : ", i.rs)
+	fmt.Println()
+
 }
