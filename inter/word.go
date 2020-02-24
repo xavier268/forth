@@ -34,6 +34,6 @@ func (i *Interpreter) lookupFrom(lastnfa int, token string) (nfa int) {
 		nfa = prevnfa
 		prevnfa = i.mem[nfa]
 	}
-	i.err = ErrWordNotFound(token)
+	i.Err = ErrWordNotFound(token)
 	return 0
 }

@@ -21,19 +21,19 @@ func TestLookupToken(t *testing.T) {
 
 	s = "+"
 	nfa = i.lookup(s)
-	if i.err != nil {
+	if i.Err != nil {
 		t.Fatal(s, "==>", nfa, err)
 	}
 
 	s = ";"
 	nfa = i.lookup(s)
-	if i.err != nil {
+	if i.Err != nil {
 		t.Fatal(s, "==>", nfa, err)
 	}
 
 	s = "nonexistent"
 	nfa = i.lookup(s)
-	if i.err == nil {
+	if i.Err == nil {
 		fmt.Println(s, "==>", nfa, err)
 		t.Fail()
 	}

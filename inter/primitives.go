@@ -34,14 +34,14 @@ func (i *Interpreter) isPrimitive() bool {
 // interpretPrim based on the cfa pointed to by IP
 func (i *Interpreter) interpretPrim() {
 
-	if i.err != nil {
+	if i.Err != nil {
 		return
 	}
 
 	nfa := i.ip - 1
 	w, ok := i.words[nfa]
 	if !ok {
-		i.err = ErrNotPrimitive
+		i.Err = ErrNotPrimitive
 		return
 	}
 
@@ -51,7 +51,7 @@ func (i *Interpreter) interpretPrim() {
 	case ".":
 		n, err := i.ds.pop()
 		if err != nil {
-			i.err = err
+			i.Err = err
 			return
 		}
 		fmt.Fprintf(i.writer, " %s", strconv.FormatInt(int64(n), i.base))
@@ -64,12 +64,12 @@ func (i *Interpreter) interpretPrim() {
 	case "+":
 		n, err := i.ds.pop()
 		if err != nil {
-			i.err = err
+			i.Err = err
 			return
 		}
 		nn, err := i.ds.pop()
 		if err != nil {
-			i.err = err
+			i.Err = err
 			return
 		}
 		i.ds.push(n + nn)
@@ -91,7 +91,7 @@ func (i *Interpreter) interpretPrim() {
 		// get next token
 		if !i.scanner.Scan() {
 			// EOF
-			i.err = ErrUnexpectedEndOfLine
+			i.Err = ErrUnexpectedEndOfLine
 			return
 		}
 		token := i.scanner.Text()
@@ -114,7 +114,7 @@ func (i *Interpreter) interpretPrim() {
 			return
 		}
 		// normal, interpreted mode just pop rs
-		i.ip, i.err = i.rs.pop()
+		i.ip, i.Err = i.rs.pop()
 		return
 
 	default:
