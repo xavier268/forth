@@ -45,6 +45,7 @@ func TestOperations(t *testing.T) {
 	testInOut(t, "2 3 + ", "")
 	testInOut(t, "2 3 + . ", " 5")
 	testInOut(t, "2 3 . ", " 3")
+	testInOut(t, "2 3 4 . + .", " 4 5")
 
 	testInOut(t, ".", "", true)        // overflown error expected
 	testInOut(t, ". 1 . ", "", true)   // overflow, then normal operation
@@ -54,7 +55,9 @@ func TestOperations(t *testing.T) {
 	testInOut(t, ": plus + ; 3 7 plus .", " 10")
 	testInOut(t, ": plus + . ; 3 7 plus", " 10")
 
-	testInOut(t, ": plus + . ; : plusplus plus plus ; 1 2 3 4 plusplus", " 7 3")
+	testInOut(t,
+		": plus + . ; : plusplus plus plus ; 1 2 3 4 plusplus",
+		" 7 3")
 
 }
 
