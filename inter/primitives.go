@@ -8,12 +8,22 @@ import (
 func (i *Interpreter) initPrimitives() {
 
 	//           name, immediate
+	i.addPrimitive("EXIT", false)
+	i.addPrimitive("ABORT", false)
+	i.addPrimitive("RESET", false)
+	i.addPrimitive("INFO", false)
+	i.addPrimitive("ALLOT", true)
+	i.addPrimitive("!", false)
+	i.addPrimitive("HERE", false)
+	i.addPrimitive("@", false)
+	i.addPrimitive(",", false)
 	i.addPrimitive("+", false)
+	i.addPrimitive("-", false)
 	i.addPrimitive(".", false)
 	i.addPrimitive(":", false)
 	i.addPrimitive(";", true)
-	i.addPrimitive("LITTERAL", false)
 	i.addPrimitive("NOOP", false)
+	i.addPrimitive("LITERAL", false)
 
 	// flag last primitive nfa
 	i.lastPrimitiveNfa = i.lastNfa
@@ -48,6 +58,73 @@ func (i *Interpreter) interpretPrim() {
 
 	switch w.name {
 
+	case "EXIT": // Exit program.
+		i.Err = ErrQuit
+		return
+
+	case "ABORT", "RESET": // Reset REPL, clean stacks.
+		i.Abort()
+		return
+
+	case "INFO": // dump debugging info
+		i.dump()
+
+	case ",": // (n -- ) Add n to the next dictionnary cell, allocating ONE cell.
+		n, err := i.ds.pop()
+		if err != nil {
+			i.Err = err
+			return
+		}
+		i.alloc(1)
+		i.mem[i.here-1] = n
+
+	case "ALLOT": // (n --) Add n cells to the dictionnay.
+
+		n, err := i.ds.pop()
+		if err != nil {
+			i.Err = err
+			return
+		}
+
+		i.alloc(n)
+
+	case "HERE": // ( -- addr ) get the address of the first availbale cell of the memory.
+		// CAUTION : the memory at HERE and beyond is NOT ACCESSIBLE unless allocated.
+
+		i.ds.push(i.here)
+
+	case "!": // (n addr --) store n at the given address, if it is allocated
+		a, err := i.ds.pop()
+		if err != nil {
+			i.Err = err
+			return
+		}
+		n, err := i.ds.pop()
+		if err != nil {
+			i.Err = err
+			return
+		}
+
+		if a >= len(i.mem) || a < 0 {
+			i.Err = ErrInvalidAddr(a)
+			return
+		}
+
+		i.mem[a] = n
+
+	case "@": // (addr -- n) fetch memory content
+		a, err := i.ds.pop()
+		if err != nil {
+			i.Err = err
+			return
+		}
+		if a >= len(i.mem) || a < 0 {
+			i.Err = ErrInvalidAddr(a)
+			return
+		}
+
+		i.ds.push(i.mem[a])
+
 	case ".":
 		n, err := i.ds.pop()
 		if err != nil {
@@ -70,6 +147,20 @@ func (i *Interpreter) interpretPrim() {
 
 		i.ds.push(n + nn)
 
+	case "-": // ( n1 n2 -- "n2-n1") Substract
+		n2, err := i.ds.pop()
+		if err != nil {
+			i.Err = err
+			return
+		}
+		n1, err := i.ds.pop()
+		if err != nil {
+			i.Err = err
+			return
+		}
+
+		i.ds.push(n1 - n2)
+
 	case ":":
 
 		// get next token
@@ -88,7 +179,7 @@ func (i *Interpreter) interpretPrim() {
 		// i.mem[i.here-1] = cfa
 
 		// switch to compile mode
-		fmt.Println("Switching to compile mode")
+		// fmt.Println("Switching to compile mode")
 		i.compileMode = true
 
 	case ";":
@@ -99,7 +190,7 @@ func (i *Interpreter) interpretPrim() {
 			i.mem[i.here-1] = nfa + 1
 
 			// shift back to interpret mode
-			fmt.Println("Switching to interpret mode")
+			// fmt.Println("Switching to interpret mode")
 			i.compileMode = false
 
 		}
@@ -110,6 +201,20 @@ func (i *Interpreter) interpretPrim() {
 			return // done
 		}
 		i.ip = ip
+
+	case "NOOP":
+		// do nothing
+
+	case "LITERAL":
+		if i.rs.empty() {
+			i.Err = ErrLiteral
+			return
+		}
+		// the number is pointed by the return stack
+		// get it, and points to the following address
+		nextip, _ := i.rs.pop()
+		i.rs.push(nextip + 1)
+		i.ds.push(i.mem[nextip])
 
 	default:
 		panic("primitive '" + w.name + "' is not implementd")

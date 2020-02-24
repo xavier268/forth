@@ -6,7 +6,10 @@ import (
 )
 
 // ErrStackUnderflow error
-var ErrStackUnderflow error = errors.New("stack underflow")
+var ErrStackUnderflow = errors.New("stack underflow")
+
+// ErrLiteral error
+var ErrLiteral = errors.New("sYou cannot use LITERAL in this context (no return stack)")
 
 // ErrNotPrimitive error
 var ErrNotPrimitive = errors.New("not a valid primitive cfa")
@@ -21,15 +24,28 @@ var ErrUnexpectedEndOfLine = errors.New("a token was expected immediatly after")
 
 // ErrInvalidCfa error
 func ErrInvalidCfa(cfa int) error {
-	return errors.New("invalid cfa : " + fmt.Sprint(cfa))
+	return fmt.Errorf("invalid cfa : %d", cfa)
+}
+
+// ErrInvalidAddr error
+func ErrInvalidAddr(a int) error {
+	return fmt.Errorf("invalid address : %d", a)
 }
 
 // ErrQuit normal exit
 var ErrQuit = errors.New("bye, ... exiting")
 
+// ErrAbort rend la main à l'utilisateur,
+// met les piles à 0, interpreter mode
+var ErrAbort = errors.New("abort")
+
 // Abort reset stacks and interpreter
 func (i *Interpreter) Abort() {
 	i.ds.clear()
 	i.rs.clear()
-	// IP ?
+	i.compileMode = false
+	// don't override previous error
+	if i.Err == nil {
+		i.Err = ErrAbort
+	}
 }

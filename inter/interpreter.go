@@ -2,7 +2,6 @@ package inter
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -75,7 +74,7 @@ func (i *Interpreter) Eval(token string) {
 	}
 
 	// DEBUG
-	fmt.Println("Evaluating : ", token)
+	// fmt.Println("Evaluating : ", token)
 
 	// lookup token in dictionnary
 	nfa := i.lookup(token)
@@ -124,7 +123,7 @@ func (i *Interpreter) compile(wcfa int) {
 		return
 	}
 	if w.immediate {
-		fmt.Println("Processing an immediate word", w)
+		// fmt.Println("Processing an immediate word : '", w.name, "'")
 		i.ip = wcfa
 		i.interpret()
 		return
@@ -142,9 +141,9 @@ func (i *Interpreter) compileNum(num int) {
 		return
 	}
 
-	nfalitt := i.lookupPrimitive("LITTERAL")
+	nfalitt := i.lookupPrimitive("LITERAL")
 	if i.Err != nil {
-		panic("LITTERAL not defined as primitive ?")
+		panic("LITERAL not defined as primitive ?")
 	}
 	// write cfa of "litteral" and number
 	i.alloc(2)
