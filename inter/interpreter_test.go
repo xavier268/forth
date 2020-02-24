@@ -50,6 +50,8 @@ func TestOperations(t *testing.T) {
 	f(t, "2 3 - . ", " -1")
 	f(t, "3 2 - . ", " 1")
 
+	f(t, "3 2 * . ", " 6")
+
 	f(t, "2 3 SWAP . .  ", " 2 3")
 	f(t, "3 DUP +  .  ", " 6")
 	f(t, "3 DROP  ", "")

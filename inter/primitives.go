@@ -21,6 +21,7 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("DROP", false)
 	i.addPrimitive(",", false)
 	i.addPrimitive("+", false)
+	i.addPrimitive("*", false)
 	i.addPrimitive("-", false)
 	i.addPrimitive(".", false)
 	i.addPrimitive(":", false)
@@ -172,6 +173,20 @@ func (i *Interpreter) interpretPrim() {
 		}
 
 		i.ds.push(n + nn)
+
+	case "*":
+		n, err := i.ds.pop()
+		if err != nil {
+			i.Err = err
+			return
+		}
+		nn, err := i.ds.pop()
+		if err != nil {
+			i.Err = err
+			return
+		}
+
+		i.ds.push(n * nn)
 
 	case "-": // ( n1 n2 -- "n2-n1") Substract
 		n2, err := i.ds.pop()
