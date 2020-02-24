@@ -20,20 +20,20 @@ func TestLookupToken(t *testing.T) {
 	i.dump()
 
 	s = "+"
-	nfa, err = i.lookup(s)
-	if err != nil {
+	nfa = i.lookup(s)
+	if i.err != nil {
 		t.Fatal(s, "==>", nfa, err)
 	}
 
 	s = ";"
-	nfa, err = i.lookup(s)
-	if err != nil {
+	nfa = i.lookup(s)
+	if i.err != nil {
 		t.Fatal(s, "==>", nfa, err)
 	}
 
 	s = "nonexistent"
-	nfa, err = i.lookup(s)
-	if err == nil {
+	nfa = i.lookup(s)
+	if i.err == nil {
 		fmt.Println(s, "==>", nfa, err)
 		t.Fail()
 	}
@@ -49,8 +49,6 @@ func TestOperations(t *testing.T) {
 
 	testInOut(t, ": toto ; toto", "")
 	testInOut(t, ": plus + ; 3 7 plus .", " 10")
-
-	// This one is buggy - multiple statement in definition does not work
 	testInOut(t, ": plus + . ; 3 7 plus", " 10")
 
 }

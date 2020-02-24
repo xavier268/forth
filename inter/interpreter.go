@@ -21,7 +21,8 @@ type Interpreter struct {
 	words map[int]*word
 	// CompileMode (or interpret) mode ?
 	compileMode bool
-	err         error
+	// Err contains first interpreter error
+	Err error
 	// next address to interpret
 	ip int
 	// here : next free cell in the memory/dictionnary
@@ -57,91 +58,114 @@ func (i *Interpreter) Run() error {
 			return nil
 		}
 		token := i.scanner.Text()
-		err := i.Eval(token)
-		if err != nil {
+		i.Eval(token)
+		if i.Err != nil {
 			i.Abort()
-			return err
+			return i.Err
 		}
 
 	}
 }
 
 // Eval evaluates token.
-func (i *Interpreter) Eval(token string) error {
+func (i *Interpreter) Eval(token string) {
+
+	if i.Err != nil {
+		return
+	}
 
 	// DEBUG
 	fmt.Println("Evaluating : ", token)
 
 	// lookup token in dictionnary
-	nfa, err := i.lookup(token)
-	if err == nil {
+	nfa := i.lookup(token)
+	cfa := nfa + 1
+	if i.Err == nil {
 		if i.compileMode {
-			return i.compile(nfa + 1)
+			i.compile(cfa)
+			return
 		}
-		i.ip = nfa + 1 // ip points to the cfa of the token.
-		return i.interpret()
+		i.ip = cfa // ip points to the cfa of the token.
+		i.interpret()
+		return
 	}
+
+	// clear token not found error
+	i.Err = nil
 
 	// read token as number.
 	num, err := strconv.ParseInt(token, i.base, 64)
 	if err != nil {
-		return ErrWordNotFound(token)
+		i.Err = ErrWordNotFound(token)
+		return
 	}
 
 	if i.compileMode {
 		i.compileNum(int(num))
-	} else {
-		i.ds.push(int(num))
+		return
 	}
-	return nil
+	i.ds.push(int(num))
+	return
+
 }
 
 // compile the provided cfa on top of the dictionnary
 // If it is immediate, call interpret, BUT STAY in compile mode !
-func (i *Interpreter) compile(wcfa int) error {
+func (i *Interpreter) compile(wcfa int) {
+
+	if i.Err != nil {
+		return
+	}
 
 	// check if word is immediate
 	w, ok := i.words[wcfa-1]
 	if !ok {
-		return ErrInvalidCfa(wcfa)
+		i.Err = ErrInvalidCfa(wcfa)
+		return
 	}
 	if w.immediate {
 		fmt.Println("Processing an immediate word", w)
 		i.ip = wcfa
-		return i.interpret()
+		i.interpret()
+		return
 	}
 
 	i.alloc(1)
 	i.mem[i.here-1] = wcfa
-	return nil
+	return
 }
 
 // compile a litteral number
-func (i *Interpreter) compileNum(num int) error {
-	nfalitt, err := i.lookupPrimitive("LITTERAL")
-	if err != nil {
+func (i *Interpreter) compileNum(num int) {
+	if i.Err != nil {
+		return
+	}
+
+	nfalitt := i.lookupPrimitive("LITTERAL")
+	if i.Err != nil {
 		panic("LITTERAL not defined as primitive ?")
 	}
 	// write cfa of "litteral" and number
 	i.alloc(2)
 	i.mem[i.here-2], i.mem[i.here-1] = nfalitt+1, num
-	return nil
+	return
 }
 
 // Interpret the word whose cfa is pointed by the ip pointer
-func (i *Interpreter) interpret() (err error) {
+func (i *Interpreter) interpret() {
+
+	if i.Err != nil {
+		return
+	}
 
 	if i.isPrimitive() {
-		return i.interpretPrim()
+		i.interpretPrim()
+		return
 	}
 
 	// compound word
 	i.rs.push(i.ip + 1) // push return address (up to ';' to pop it)
 	i.ip = i.mem[i.ip]  // jump to the dereferenced address
-	err = i.interpret() // recurse on the dereferenced cfa
-	if err != nil {
-		return err
-	}
-
-	return err
+	i.interpret()       // recurse on the dereferenced cfa
+	return
 }

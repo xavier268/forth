@@ -10,7 +10,7 @@ func (i *Interpreter) initPrimitives() {
 	//           name, immediate
 	i.addPrimitive("+", false)
 	i.addPrimitive(".", false)
-	i.addPrimitive(":", false)
+	i.addPrimitive(":", true)
 	i.addPrimitive(";", true)
 	i.addPrimitive("LITTERAL", false)
 
@@ -32,39 +32,58 @@ func (i *Interpreter) isPrimitive() bool {
 }
 
 // interpretPrim based on the cfa pointed to by IP
-func (i *Interpreter) interpretPrim() (err error) {
+func (i *Interpreter) interpretPrim() {
+
+	if i.err != nil {
+		return
+	}
 
 	nfa := i.ip - 1
 	w, ok := i.words[nfa]
 	if !ok {
-		return ErrNotPrimitive
+		i.err = ErrNotPrimitive
+		return
 	}
+
 	// define all primitive behaviors in interpret mode
 	switch w.name {
 
 	case ".":
 		n, err := i.ds.pop()
 		if err != nil {
-			return err
+			i.err = err
+			return
 		}
 		fmt.Fprintf(i.writer, " %s", strconv.FormatInt(int64(n), i.base))
-		i.ip++
-		return nil
+		i.ip, err = i.rs.pop()
+		if err != nil {
+			panic(err)
+		}
+		i.interpret()
+		return
 	case "+":
 		n, err := i.ds.pop()
 		if err != nil {
-			return err
+			i.err = err
+			return
 		}
 		nn, err := i.ds.pop()
 		if err != nil {
-			return err
+			i.err = err
+			return
 		}
 		i.ds.push(n + nn)
-		i.ip++
-		return nil
+		i.ip, err = i.rs.pop()
+		if err != nil {
+			panic(err)
+		}
+		i.interpret()
+		return
 	case ":":
-		if i.compileMode {
-			panic("invalid call to ':' in compile mode")
+		if i.compileMode { // immediate in compile mode
+			i.ip++
+			i.interpret()
+			return
 		}
 
 		fmt.Println("Switching to compile mode")
@@ -72,13 +91,18 @@ func (i *Interpreter) interpretPrim() (err error) {
 		// get next token
 		if !i.scanner.Scan() {
 			// EOF
-			return ErrUnexpectedEndOfLine
+			i.err = ErrUnexpectedEndOfLine
+			return
 		}
 		token := i.scanner.Text()
 
 		// create header
 		i.createHeader(token)
-		return nil
+
+		// add cfa of the definition word, :
+		i.alloc(1)
+		i.mem[i.here-1] = nfa + 1
+		return
 
 	case ";":
 		if i.compileMode {
@@ -87,11 +111,11 @@ func (i *Interpreter) interpretPrim() (err error) {
 			i.alloc(1)
 			i.mem[i.here-1] = nfa + 1
 			i.compileMode = false
-			return nil
+			return
 		}
 		// normal, interpreted mode just pop rs
-		i.ip, err = i.rs.pop()
-		return err
+		i.ip, i.err = i.rs.pop()
+		return
 
 	default:
 		panic("primitive '" + w.name + "' is not implementd")

@@ -18,6 +18,7 @@ const (
 
 // Prompt the user for entry
 func (i *Interpreter) Prompt() string {
+	i.dump()
 	if i.compileMode {
 		return fmt.Sprintf("\n%scompile:%s ", ColorBlue, ColorOff)
 	}

@@ -16,17 +16,19 @@ func (i *Interpreter) dump() {
 			fmt.Printf("\n%5d --: ", k)
 		}
 		if k == i.ip {
-			fmt.Printf("%s%5d%s", ColorGreen, v, ColorOff)
+			fmt.Printf("%s%5d%s ", ColorGreen, v, ColorOff)
 		} else {
 			fmt.Printf("%5d ", v)
 		}
 	}
 	fmt.Println()
 
-	fmt.Println("IP : ", i.ip)
-	fmt.Println("Compile : ", i.compileMode)
-	fmt.Println("DS : ", i.ds)
-	fmt.Println("RS : ", i.rs)
+	fmt.Println("IP           : ", i.ip)
+	fmt.Println("LastNFA      : ", i.lastNfa)
+	fmt.Println("LastNFA prim : ", i.lastPrimitiveNfa)
+	fmt.Println("Compile      : ", i.compileMode)
+	fmt.Println("DS           : ", i.ds.data)
+	fmt.Println("RS           : ", i.rs.data)
 	fmt.Println()
 
 }

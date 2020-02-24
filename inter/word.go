@@ -7,17 +7,17 @@ type word struct {
 }
 
 // lookup most recent token in dictionnary, using the chain of lfa.
-func (i *Interpreter) lookup(token string) (nfa int, err error) {
+func (i *Interpreter) lookup(token string) (nfa int) {
 	return i.lookupFrom(i.lastNfa, token)
 }
 
 // lookup only among primitives
-func (i *Interpreter) lookupPrimitive(token string) (nfa int, err error) {
+func (i *Interpreter) lookupPrimitive(token string) (nfa int) {
 	return i.lookupFrom(i.lastPrimitiveNfa, token)
 }
 
 // lookup from the lastnfa provided.
-func (i *Interpreter) lookupFrom(lastnfa int, token string) (nfa int, err error) {
+func (i *Interpreter) lookupFrom(lastnfa int, token string) (nfa int) {
 
 	// start of search with provied nfa
 	nfa = lastnfa
@@ -28,11 +28,12 @@ func (i *Interpreter) lookupFrom(lastnfa int, token string) (nfa int, err error)
 		w := i.words[nfa]
 		//fmt.Println("Testing : ", nfa, w)
 		if w != nil && w.name == token {
-			return nfa, nil
+			return nfa
 		}
 
 		nfa = prevnfa
 		prevnfa = i.mem[nfa]
 	}
-	return 0, ErrWordNotFound(token)
+	i.err = ErrWordNotFound(token)
+	return 0
 }
