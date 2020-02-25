@@ -2,7 +2,6 @@ package inter
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -32,9 +31,9 @@ func (i *Interpreter) initForth() {
 		filepath.Join("..", "inter", fname),
 	}
 	for _, name := range names { // loop until we found the file
-		fmt.Println("DEBUG : Trying ", name)
+		// fmt.Println("DEBUG : Trying ", name)
 		if f, i.Err = os.Open(name); i.Err == nil {
-			fmt.Println("DEBUG : Loading ", name)
+			// fmt.Println("DEBUG : Loading ", name)
 			break
 		}
 	}

@@ -24,6 +24,8 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("*", false)
 	i.addPrimitive("-", false)
 	i.addPrimitive(".", false)
+	i.addPrimitive(".\"", false)
+	i.addPrimitive("CR", false)
 	i.addPrimitive(":", false)
 	i.addPrimitive(";", true)
 	i.addPrimitive("CONSTANT", false)
@@ -137,6 +139,20 @@ func (i *Interpreter) interpretPrim() {
 
 		i.ds.push(i.mem[a])
 
+	case ".\"": // output following texts until a " is met, as a SEPARATE token
+
+		token := i.scanNextToken()
+		for token != "\"" {
+			if i.Err != nil {
+				return
+			}
+			fmt.Fprintf(i.writer, " %s", token)
+			token = i.scanNextToken()
+		}
+
+	case "CR": // emit carriage return
+		fmt.Fprintln(i.writer)
+
 	case ".":
 		n, err := i.ds.pop()
 		if err != nil {
@@ -215,13 +231,10 @@ func (i *Interpreter) interpretPrim() {
 	case "FORGET": // FORGET <xxx> will remove the xxx word
 		// all subsequent dictionnary cells will become unavialable
 
-		// get next token
-		if !i.scanner.Scan() {
-			// EOF
-			i.Err = ErrUnexpectedEndOfLine
+		token := i.scanNextToken()
+		if i.Err != nil {
 			return
 		}
-		token := i.scanner.Text()
 
 		nfa2forget := i.lookup(token)
 		i.lastNfa = i.mem[nfa2forget]
@@ -243,13 +256,10 @@ func (i *Interpreter) interpretPrim() {
 
 	case "CONSTANT":
 
-		// get next token
-		if !i.scanner.Scan() {
-			// EOF
-			i.Err = ErrUnexpectedEndOfLine
+		token := i.scanNextToken()
+		if i.Err != nil {
 			return
 		}
-		token := i.scanner.Text()
 
 		// create header
 		i.createHeader(token)
@@ -267,13 +277,10 @@ func (i *Interpreter) interpretPrim() {
 
 	case ":":
 
-		// get next token
-		if !i.scanner.Scan() {
-			// EOF
-			i.Err = ErrUnexpectedEndOfLine
+		token := i.scanNextToken()
+		if i.Err != nil {
 			return
 		}
-		token := i.scanner.Text()
 
 		// create header
 		i.createHeader(token)
@@ -345,4 +352,15 @@ func (i *Interpreter) interpretPrim() {
 		return
 	}
 
+}
+
+// get next token
+func (i *Interpreter) scanNextToken() string {
+
+	if !i.scanner.Scan() {
+		// EOF
+		i.Err = ErrUnexpectedEndOfLine
+		return ""
+	}
+	return i.scanner.Text()
 }

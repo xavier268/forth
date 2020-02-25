@@ -39,6 +39,13 @@ func TestLookupToken(t *testing.T) {
 	}
 
 }
+func TestPrint(t *testing.T) {
+
+	f(t, ` ." hello world " `, " hello world")
+	f(t, ` ." hello world" `, " hello world\"", true)
+	f(t, ` ." hello world" " `, " hello world\"")
+
+}
 
 func TestOperations(t *testing.T) {
 
