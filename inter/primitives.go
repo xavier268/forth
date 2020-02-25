@@ -23,6 +23,7 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("+", false)
 	i.addPrimitive("*", false)
 	i.addPrimitive("-", false)
+	i.addPrimitive("BASE", false) // ( -- addr)
 	i.addPrimitive(".", false)
 	i.addPrimitive(".\"", false)
 	i.addPrimitive("CR", false)
@@ -83,6 +84,9 @@ func (i *Interpreter) interpretPrim() {
 
 	case "INFO": // dump debugging info
 		i.dump()
+
+	case "BASE": // ( -- addr )
+		i.ds.push(UVBase)
 
 	case ",": // (n -- ) Add n to the next dictionnary cell, allocating ONE cell.
 		n, err := i.ds.pop()

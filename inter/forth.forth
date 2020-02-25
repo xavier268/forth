@@ -16,6 +16,9 @@
     HERE 3 +    ( where to store the value )    
     CONSTANT    
     1 ALLOT     ( reserve memory for value )
-    ;    
+    ;  
+
+: DECIMAL       10 BASE ! ;
+: HEX           16 BASE ! ;  
     
 
