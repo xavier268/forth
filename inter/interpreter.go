@@ -42,6 +42,7 @@ func NewInterpreter() *Interpreter {
 
 	i.initUserVars()
 	i.initPrimitives()
+	i.initForth()
 	return i
 }
 

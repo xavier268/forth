@@ -12,7 +12,7 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("ABORT", false)
 	i.addPrimitive("RESET", false)
 	i.addPrimitive("INFO", false)
-	i.addPrimitive("ALLOT", true)
+	i.addPrimitive("ALLOT", false)
 	i.addPrimitive("!", false)
 	i.addPrimitive("HERE", false)
 	i.addPrimitive("@", false)
@@ -36,6 +36,10 @@ func (i *Interpreter) initPrimitives() {
 
 	// flag last primitive nfa
 	i.lastPrimitiveNfa = i.lastNfa
+
+	if i.Err != nil {
+		panic(i.Err)
+	}
 }
 
 func (i *Interpreter) addPrimitive(name string, immediate bool) {
