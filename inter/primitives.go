@@ -24,6 +24,7 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("*", false)
 	i.addPrimitive("-", false)
 	i.addPrimitive("BASE", false) // ( -- addr)
+	i.addPrimitive("EMIT", false) // ( char -- ) emit the provided utf8 char
 	i.addPrimitive(".", false)
 	i.addPrimitive(".\"", false)
 	i.addPrimitive("CR", false)
@@ -143,7 +144,9 @@ func (i *Interpreter) interpretPrim() {
 
 		i.ds.push(i.mem[a])
 
-	case ".\"": // output following texts until a " is met, as a SEPARATE token
+	case ".\"": // output following texts until a " word is met,
+		// It has to be a SEPARATE " token !
+		// White spaces between tokens are normalized.
 
 		token := i.scanNextToken()
 		for token != "\"" {
@@ -156,6 +159,15 @@ func (i *Interpreter) interpretPrim() {
 
 	case "CR": // emit carriage return
 		fmt.Fprintln(i.writer)
+
+	case "EMIT": // ( char -- ) emit the char
+		n, err := i.ds.pop()
+		if err != nil {
+			i.Err = err
+			return
+		}
+
+		fmt.Fprintf(i.writer, "%s", string(rune(n)))
 
 	case ".":
 		n, err := i.ds.pop()
