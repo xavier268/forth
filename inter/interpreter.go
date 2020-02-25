@@ -151,11 +151,11 @@ func (i *Interpreter) compileNum(num int) {
 		return
 	}
 
-	nfalitt := i.lookupPrimitive("LITERAL")
+	nfalitt := i.lookupPrimitive("$$LITERAL$$")
 	if i.Err != nil {
-		panic("LITERAL not defined as primitive ?")
+		panic("$$LITERAL$$ not defined as primitive ?")
 	}
-	// write cfa of "litteral" and number
+	// write cfa of "literal" and number
 	i.alloc(2)
 	h := len(i.mem)
 	i.mem[h-2], i.mem[h-1] = nfalitt+1, num

@@ -26,8 +26,12 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive(".", false)
 	i.addPrimitive(":", false)
 	i.addPrimitive(";", true)
+	i.addPrimitive("CONSTANT", false)
 	i.addPrimitive("NOOP", false)
-	i.addPrimitive("LITERAL", false)
+
+	// Internal pseudo keywords
+	i.addPrimitive("$$LITERAL$$", false)
+	i.addPrimitive("$$CONSTANT$$", false)
 
 	// flag last primitive nfa
 	i.lastPrimitiveNfa = i.lastNfa
@@ -134,7 +138,7 @@ func (i *Interpreter) interpretPrim() {
 			i.Err = err
 			return
 		}
-		fmt.Println("DEBUG : BASE = ", i.getBase())
+		//fmt.Println("DEBUG : BASE = ", i.getBase())
 		fmt.Fprintf(i.writer, " %s",
 			strconv.FormatInt(int64(n), i.getBase()))
 
@@ -203,6 +207,30 @@ func (i *Interpreter) interpretPrim() {
 
 		i.ds.push(n1 - n2)
 
+	case "CONSTANT":
+
+		// get next token
+		if !i.scanner.Scan() {
+			// EOF
+			i.Err = ErrUnexpectedEndOfLine
+			return
+		}
+		token := i.scanner.Text()
+
+		// create header
+		i.createHeader(token)
+
+		// Get the number,
+		var n int
+		n, i.Err = i.ds.pop()
+		if i.Err != nil {
+			return
+		}
+
+		// compile the number with the $$LCONSTANT$$ cfa
+		nfa := i.lookupPrimitive("$$CONSTANT$$")
+		i.mem = append(i.mem, nfa+1, n)
+
 	case ":":
 
 		// get next token
@@ -243,15 +271,29 @@ func (i *Interpreter) interpretPrim() {
 	case "NOOP":
 		// do nothing
 
-	case "LITERAL":
+	case "$$LITERAL$$":
+
 		if i.rs.empty() {
-			i.Err = ErrLiteral
+			i.Err = ErrReservedWord(w.name)
 			return
 		}
+
 		// the number is pointed by the return stack
 		// get it, and points to the following address
 		nextip, _ := i.rs.pop()
 		i.rs.push(nextip + 1)
+		i.ds.push(i.mem[nextip])
+
+	case "$$CONSTANT$$":
+
+		if i.rs.empty() {
+			i.Err = ErrReservedWord(w.name)
+			return
+		}
+
+		// the number is pointed by the return stack
+		// get it, and drop a return stack level
+		nextip, _ := i.rs.pop()
 		i.ds.push(i.mem[nextip])
 
 	default:

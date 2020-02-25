@@ -8,8 +8,10 @@ import (
 // ErrStackUnderflow error
 var ErrStackUnderflow = errors.New("stack underflow")
 
-// ErrLiteral error
-var ErrLiteral = errors.New("sYou cannot use LITERAL in this context (no return stack)")
+// ErrReservedWord error
+func ErrReservedWord(token string) error {
+	return fmt.Errorf("the token '%s' is reserved for internal use", token)
+}
 
 // ErrNotPrimitive error
 var ErrNotPrimitive = errors.New("not a valid primitive cfa")

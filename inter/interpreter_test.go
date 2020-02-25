@@ -63,6 +63,14 @@ func TestOperations(t *testing.T) {
 	f(t, " 1 . .", " 1", true) // normal then overflow
 
 }
+func TestConstant(t *testing.T) {
+	f(t, "CONSTANT", "", true)
+	f(t, "1 CONSTANT", "", true)
+	f(t, "55 CONSTANT CC CC . ", " 55")
+	f(t, "55 CONSTANT CC : CCC CC CC + . ; CCC", " 110")
+
+}
+
 func TestComment(t *testing.T) {
 
 	f(t, "2 3 ( 55 kjhkjh ) + ", "")
