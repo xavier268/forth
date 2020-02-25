@@ -19,6 +19,8 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("DUP", false)
 	i.addPrimitive("SWAP", false)
 	i.addPrimitive("DROP", false)
+	i.addPrimitive("ROT", false)  // ( n1 n2 n3 -- n2 n3 n1 )
+	i.addPrimitive("OVER", false) // ( a b -- a b a )
 	i.addPrimitive(",", false)
 	i.addPrimitive("+", false)
 	i.addPrimitive("*", false)
@@ -193,6 +195,22 @@ func (i *Interpreter) interpretPrim() {
 			return
 		}
 		i.ds.push(n)
+	case "ROT":
+		l := len(i.ds.data)
+		if l < 3 {
+			i.Err = ErrStackUnderflow
+			return
+		}
+		i.ds.data[l-1], i.ds.data[l-2], i.ds.data[l-3] =
+			i.ds.data[l-3], i.ds.data[l-1], i.ds.data[l-2]
+
+	case "OVER":
+		l := len(i.ds.data)
+		if l < 2 {
+			i.Err = ErrStackUnderflow
+			return
+		}
+		i.ds.push(i.ds.data[l-2])
 
 	case "SWAP": // (a b -- b a )
 		l := len(i.ds.data)

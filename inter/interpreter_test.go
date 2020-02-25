@@ -66,6 +66,13 @@ func TestOperations(t *testing.T) {
 	f(t, "3 DROP  ", "")
 	f(t, "3 DROP . ", "", true)
 	f(t, "3 4 DROP . ", " 3")
+	f(t, "1 2 OVER . . . ", " 1 2 1")
+	f(t, "2 OVER ", "", true)
+
+	f(t, "2 ROT ", "", true)
+	f(t, "1 2 ROT ", "", true)
+	f(t, "1 2 3 ROT ", "")
+	f(t, "1 2 3 ROT . . . ", " 1 3 2")
 
 	f(t, ".", "", true)        // overflown error expected
 	f(t, ". 1 . ", "", true)   // overflow, then normal operation
