@@ -63,11 +63,15 @@ func TestOperations(t *testing.T) {
 	f(t, " 1 . .", " 1", true) // normal then overflow
 
 }
-func TestConstant(t *testing.T) {
+func TestConstantAndForget(t *testing.T) {
 	f(t, "CONSTANT", "", true)
 	f(t, "1 CONSTANT", "", true)
 	f(t, "55 CONSTANT CC CC . ", " 55")
 	f(t, "55 CONSTANT CC : CCC CC CC + . ; CCC", " 110")
+
+	f(t, "4 CONSTANT Q Q . FORGET Q Q . ", " 4", true)
+	f(t, "4 CONSTANT Q : R Q ;  FORGET Q ", "")
+	f(t, "4 CONSTANT Q : R Q ;  FORGET Q R ", "", true)
 
 }
 

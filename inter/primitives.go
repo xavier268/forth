@@ -28,6 +28,7 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive(";", true)
 	i.addPrimitive("CONSTANT", false)
 	i.addPrimitive("NOOP", false)
+	i.addPrimitive("FORGET", false)
 
 	// Internal pseudo keywords
 	i.addPrimitive("$$LITERAL$$", false)
@@ -206,6 +207,35 @@ func (i *Interpreter) interpretPrim() {
 		}
 
 		i.ds.push(n1 - n2)
+
+	case "FORGET": // FORGET <xxx> will remove the xxx word
+		// all subsequent dictionnary cells will become unavialable
+
+		// get next token
+		if !i.scanner.Scan() {
+			// EOF
+			i.Err = ErrUnexpectedEndOfLine
+			return
+		}
+		token := i.scanner.Text()
+
+		nfa2forget := i.lookup(token)
+		i.lastNfa = i.mem[nfa2forget]
+
+		if i.Err != nil {
+			return
+		}
+		// Cleanup mem
+		i.mem = i.mem[:nfa2forget]
+		// Cleanup words that are not accessible anymore
+		for nfa2 := range i.words {
+			if nfa2 >= nfa2forget {
+				// surprinsingly,
+				// it is safe to delete in a range,
+				// according to go spec !
+				delete(i.words, nfa2)
+			}
+		}
 
 	case "CONSTANT":
 
