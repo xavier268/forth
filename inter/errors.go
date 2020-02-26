@@ -8,9 +8,9 @@ import (
 // ErrStackUnderflow error
 var ErrStackUnderflow = errors.New("stack underflow")
 
-// ErrReservedWord error
-func ErrReservedWord(token string) error {
-	return fmt.Errorf("the token '%s' is reserved for internal use", token)
+// ErrWrongContextWord error
+func ErrWrongContextWord(token string) error {
+	return fmt.Errorf("the token '%s' cannot be used in this context", token)
 }
 
 // ErrNotPrimitive error

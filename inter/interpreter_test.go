@@ -142,6 +142,13 @@ func TestDefinition(t *testing.T) {
 	f(t, ": p1 1 + ; : p2 2 + ; : p3 p1 p2 ; 5 p3 .", " 8")
 	f(t, ": plus + . ; : plusplus plus plus ; 1 2 3 4 plusplus", " 7 3")
 
+	f(t, ": toto [ 3 2 + ] LITERAL ; 1 toto . . ", " 5 1")
+	f(t, "5 LITERAL ", "", true)
+
+	f(t, " [ 1 2 + .", "", true)
+	f(t, "1 ] 2 + .", "", true)
+	f(t, " : wrong ] 2 . ;", "", true)
+
 }
 
 // generic test.

@@ -109,11 +109,12 @@ func (i *Interpreter) Eval(token string) {
 		i.Err = ErrWordNotFound(token)
 		return
 	}
-
+	// compile numbre ...
 	if i.compileMode {
 		i.compileNum(int(num))
 		return
 	}
+	// ... or push it to stack if interpret mode
 	i.ds.push(int(num))
 	return
 
@@ -129,7 +130,7 @@ func (i *Interpreter) compile(wcfa int) {
 
 	// check if word is immediate
 	w, ok := i.words[wcfa-1]
-	if !ok {
+	if w == nil || !ok {
 		i.Err = ErrInvalidCfa(wcfa)
 		return
 	}
@@ -140,27 +141,10 @@ func (i *Interpreter) compile(wcfa int) {
 		return
 	}
 
-	i.alloc(1)
-	i.mem[len(i.mem)-1] = wcfa
-	return
-}
+	// handle special compile mode behaviours,
+	// or use defaut behaviour
 
-// compile a litteral number
-func (i *Interpreter) compileNum(num int) {
-
-	if i.Err != nil {
-		return
-	}
-
-	nfalitt := i.lookupPrimitive("$$LITERAL$$")
-	if i.Err != nil {
-		panic("$$LITERAL$$ not defined as primitive ?")
-	}
-	// write cfa of "literal" and number
-	i.alloc(2)
-	h := len(i.mem)
-	i.mem[h-2], i.mem[h-1] = nfalitt+1, num
-	return
+	i.compilePrim(wcfa, w)
 }
 
 // Interpret the word whose cfa is pointed by the ip pointer
