@@ -149,6 +149,9 @@ func TestDefinition(t *testing.T) {
 	f(t, "1 ] 2 + .", "")        // 2 and + are compiled ...
 	f(t, " : wrong ] 2 . ;", "") // absurd, but not an error
 
+	f(t, " : t 33 . ; IMMEDIATE : tt t ; ", " 33")
+	f(t, " : t 33 . ; ( IMMEDIATE ) : tt t ; ", "")
+
 }
 
 // generic test.

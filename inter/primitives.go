@@ -30,6 +30,7 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("CONSTANT", false)
 	i.addPrimitive("NOOP", false)
 	i.addPrimitive("FORGET", false)
+	i.addPrimitive("IMMEDIATE", false)
 
 	// special compile mode behaviour
 	// TODO : more tests needed

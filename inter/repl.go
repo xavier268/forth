@@ -22,7 +22,20 @@ func (i *Interpreter) Prompt() string {
 	if i.compileMode {
 		return fmt.Sprintf("\n%scompile:%s ", ColorBlue, ColorOff)
 	}
-	return fmt.Sprintf("\n%srs%vds%v>%s ", ColorGreen, i.rs.data, i.ds.data, ColorOff)
+	pt := fmt.Sprintf("\n%s", ColorGreen)
+	if len(i.rs.data) > 4 {
+		pt += fmt.Sprintf("rs(top 4)%v", i.rs.data[len(i.rs.data)-4:])
+	} else {
+		pt += fmt.Sprintf("rs%v", i.rs.data)
+	}
+	if len(i.ds.data) > 4 {
+		pt += fmt.Sprintf(", ds(top 4)%v", i.ds.data[len(i.ds.data)-4:])
+	} else {
+		pt += fmt.Sprintf(", ds%v", i.ds.data)
+	}
+	pt += fmt.Sprintf("%s> ", ColorOff)
+
+	return pt
 }
 
 // Repl is the main Read-Evaluate-Print-Loop.

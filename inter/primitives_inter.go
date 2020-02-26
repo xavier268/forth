@@ -51,6 +51,9 @@ func (i *Interpreter) interpretPrim() {
 		}
 		i.compileMode = true
 
+	case "IMMEDIATE": // lastNFA word will be made immediate
+		i.words[i.lastNfa].immediate = true
+
 	case ",": // (n -- ) Add n to the next dictionnary cell, allocating ONE cell.
 		n, err := i.ds.pop()
 		if err != nil {
