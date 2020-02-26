@@ -44,10 +44,13 @@ func newSplitFunction() bufio.SplitFunc {
 					readingString = false
 					return i + width, buf[start:i], nil
 				}
-
+			}
+			if eof { // eof will finish the string implicitely
+				readingString = false
+				return len(buf), buf[start:], nil
 			}
 
-			return 0, nil, ErrUnexpectedEndOfLine
+			return start, nil, nil // request more data
 		}
 		panic("invalid state")
 	}
