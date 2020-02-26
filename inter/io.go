@@ -15,7 +15,8 @@ func (i *Interpreter) SetWriter(iow io.Writer) *Interpreter {
 // SetReader sets an alternative reader for input.
 func (i *Interpreter) SetReader(ior io.Reader) *Interpreter {
 	i.scanner = bufio.NewScanner(ior)
-	i.scanner.Split(bufio.ScanWords) // TODO => change to newSplitFunction
+	//i.scanner.Split(bufio.ScanWords)
+	i.scanner.Split(newSplitFunction())
 	return i
 }
 
