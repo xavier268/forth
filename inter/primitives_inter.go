@@ -248,27 +248,6 @@ func (i *Interpreter) interpretPrim() {
 			}
 		}
 
-	case "CONSTANT":
-
-		token := i.scanNextToken()
-		if i.Err != nil {
-			return
-		}
-
-		// create header
-		i.createHeader(token)
-
-		// Get the number,
-		var n int
-		n, i.Err = i.ds.pop()
-		if i.Err != nil {
-			return
-		}
-
-		// compile the number with the $$LCONSTANT$$ cfa
-		nfa := i.lookupPrimitive("$$CONSTANT$$")
-		i.mem = append(i.mem, nfa+1, n)
-
 	case ":":
 
 		token := i.scanNextToken()
@@ -318,6 +297,27 @@ func (i *Interpreter) interpretPrim() {
 		nextip, _ := i.rs.pop()
 		i.rs.push(nextip + 1)
 		i.ds.push(i.mem[nextip])
+
+	case "CONSTANT":
+
+		token := i.scanNextToken()
+		if i.Err != nil {
+			return
+		}
+
+		// create header
+		i.createHeader(token)
+
+		// Get the number,
+		var n int
+		n, i.Err = i.ds.pop()
+		if i.Err != nil {
+			return
+		}
+
+		// compile the number with the $$CONSTANT$$ cfa
+		nfa := i.lookupPrimitive("$$CONSTANT$$")
+		i.mem = append(i.mem, nfa+1, n)
 
 	case "$$CONSTANT$$":
 
