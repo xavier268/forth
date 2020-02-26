@@ -31,14 +31,12 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("NOOP", false)
 	i.addPrimitive("FORGET", false)
 	i.addPrimitive("IMMEDIATE", false)
+	i.addPrimitive("[", true)
+	i.addPrimitive("]", false)
 
 	// special compile mode behaviour
 	i.addPrimitive("LITERAL", false) // compile : (n -- ) comp nuber
 	// 									interpr : ( -- n) get number
-
-	// TODO
-	i.addPrimitive("[", true)
-	i.addPrimitive("]", false)
 
 	// TODO string processing
 
