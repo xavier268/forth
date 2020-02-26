@@ -45,9 +45,14 @@ func newSplitFunction() bufio.SplitFunc {
 					return i + width, buf[start:i], nil
 				}
 			}
-			if eof { // eof will finish the string implicitely
+			// If we're at EOF, we have a final, non-empty, non-terminated word. Return it.
+
+			if eof && len(buf) > start {
+				// switch back to normal mode
 				readingString = false
+
 				return len(buf), buf[start:], nil
+
 			}
 
 			return start, nil, nil // request more data
