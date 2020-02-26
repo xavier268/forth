@@ -33,7 +33,6 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("IMMEDIATE", false)
 
 	// special compile mode behaviour
-	// TODO : more tests needed
 	i.addPrimitive("LITERAL", false) // compile : (n -- ) comp nuber
 	// 									interpr : ( -- n) get number
 
