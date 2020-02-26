@@ -33,7 +33,7 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("IMMEDIATE", false)
 	i.addPrimitive("[", true)
 	i.addPrimitive("]", false)
-
+	// -----------------------------------------
 	// special compile mode behaviour
 	i.addPrimitive("LITERAL", false) // compile : (n -- ) comp nuber
 	// 									interpr : ( -- n) get number
@@ -46,6 +46,9 @@ func (i *Interpreter) initPrimitives() {
 
 	// TODO BUILD/DOES , loops, flow control, ..
 
+	// TODO get token should read string terminated correctly ?
+
+	// ------------------------------------------
 	// Internal pseudo keywords
 	i.addPrimitive("$$CONSTANT$$", false)
 

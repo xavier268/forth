@@ -34,7 +34,8 @@ type Interpreter struct {
 // NewInterpreter constructor.
 func NewInterpreter() *Interpreter {
 	i := new(Interpreter)
-	i.writer = os.Stdout
+	i.SetWriter(os.Stdout)
+	i.SetReader(os.Stdin)
 
 	i.ds, i.rs = newStack(), newStack()
 
