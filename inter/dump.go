@@ -1,13 +1,22 @@
 package inter
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 // dump
-// TODO display words in sorted order ...
 func (i *Interpreter) dump() {
 
 	fmt.Printf("\nWords dumps, (size : %d)\n--NFA-----CFA----Imm.-----Word---------\n", len(i.words))
-	for k, w := range i.words {
+
+	var keys sort.IntSlice
+	for k := range i.words {
+		keys = append(keys, k)
+	}
+	sort.Sort(keys)
+	for _, k := range keys {
+		w := i.words[k]
 		fmt.Printf("%4d\t%4d\t%v\t%s\n", k, k+1, w.immediate, w.name)
 	}
 
