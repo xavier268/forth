@@ -109,12 +109,26 @@ func (i *Interpreter) interpretPrim() {
 
 		i.ds.push(i.mem[a])
 
-	case ".\"": // output following texts until a " word is met,
-		// It has to be a SEPARATE " token !
+	case ".\"":
+		// output following texts until a " word is met,
 		// The end of string is marked with a ", even without white spaces.
-		token := i.scanNextToken()
-		// TODO behave differently if rs == 0 or not, implement compile mode
-		fmt.Fprintf(i.writer, "%s", token)
+		// There MUST be a white space after the first "
+
+		if i.rs.empty() { // interpreting from repl
+			// get the string from the input stream
+			token := i.scanNextToken()
+			fmt.Fprintf(i.writer, "%s", token)
+		} else { // interpreting from a compound word
+			// read the string from memory
+			rip, _ := i.rs.pop()                 // return ip
+			len := i.mem[rip]                    // get string lenth
+			var k int                            // rune pointer
+			for k = rip + 1; k <= len+rip; k++ { // retrieve string
+				fmt.Fprintf(i.writer, "%s", string(rune(i.mem[k])))
+			}
+			// update new return address
+			i.rs.push(k)
+		}
 
 	case "CR": // emit carriage return
 		fmt.Fprintln(i.writer)

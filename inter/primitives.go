@@ -23,7 +23,7 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("BASE", false) // ( -- addr)
 	i.addPrimitive("EMIT", false) // ( char -- ) emit the provided utf8 char
 	i.addPrimitive(".", false)
-	i.addPrimitive(".\"", false) // TODO what happens in compound word ?
+	i.addPrimitive(".\"", false)
 	i.addPrimitive("CR", false)
 	i.addPrimitive(":", false)
 	i.addPrimitive(";", true)

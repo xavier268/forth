@@ -3,6 +3,7 @@ package inter
 import "fmt"
 
 // dump
+// TODO display words in sorted order ...
 func (i *Interpreter) dump() {
 
 	fmt.Printf("\nWords dumps, (size : %d)\n--NFA-----CFA----Imm.-----Word---------\n", len(i.words))

@@ -18,6 +18,21 @@ func (i *Interpreter) compilePrim(wcfa int, w *word) {
 		}
 		i.compileNum(n)
 
+	case ".\"":
+		token := i.scanNextToken()
+		rtok := []rune(token) // group by rune
+		if i.Err != nil {
+			return
+		}
+		i.alloc(2)
+		h := len(i.mem) // here
+		i.mem[h-2], i.mem[h-1] = wcfa, len(rtok)
+		// store the token, rune by rune
+		for _, r := range rtok {
+			i.alloc(1)
+			i.mem[len(i.mem)-1] = int(r)
+		}
+
 	default:
 		i.alloc(1)
 		i.mem[len(i.mem)-1] = wcfa

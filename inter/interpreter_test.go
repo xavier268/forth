@@ -51,12 +51,17 @@ func TestLookupToken(t *testing.T) {
 }
 func TestPrint(t *testing.T) {
 
+	// use at repl level
 	f(t, ` ." hello world " `, "hello world ")
 	f(t, ` ." hello world" `, "hello world")
 	f(t, ` ."    hello world" `, "   hello world") // only the first space is eaten up
 	f(t, ` ." hello world" " `, "hello world", true)
 
 	f(t, "DECIMAL 3564 EMIT ", "෬")
+
+	// use inside a definition !
+	f(t, ": t .\" hello world\" ;  1 . t", " 1hello world")
+	f(t, ": t .\" hello world\" ;   t 1 . ", "hello world 1")
 
 }
 
