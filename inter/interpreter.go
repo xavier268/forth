@@ -20,6 +20,8 @@ type Interpreter struct {
 	words map[int]*word
 	// CompileMode (or interpret) mode ?
 	compileMode bool
+	// reading string or normal token scan ?
+	readingString bool
 	//are we currently porcessing a comment ?
 	commentMode bool
 	// Err contains first interpreter error

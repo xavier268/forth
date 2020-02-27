@@ -56,7 +56,7 @@ func (i *Interpreter) Repl() {
 		}
 
 		i.scanner = bufio.NewScanner(strings.NewReader(linescan.Text()))
-		i.scanner.Split(newSplitFunction())
+		i.scanner.Split(i.newSplitFunction())
 
 		i.Run()
 		// normal exit

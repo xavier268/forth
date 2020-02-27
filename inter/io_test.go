@@ -25,8 +25,10 @@ func TestScanFunc(t *testing.T) {
 
 func ts(t *testing.T, s string, res ...string) {
 
+	i := NewInterpreter()
+
 	sc := bufio.NewScanner(bytes.NewBuffer([]byte(s)))
-	sc.Split(newSplitFunction())
+	sc.Split(i.newSplitFunction())
 
 	fmt.Println()
 

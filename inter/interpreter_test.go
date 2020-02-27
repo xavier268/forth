@@ -7,6 +7,16 @@ import (
 	"testing"
 )
 
+func TestConstructInterprter(t *testing.T) {
+	i := NewInterpreter()
+	if i == nil {
+		t.Fatal("Cannot construct interpreter")
+	}
+	if i.Err != nil {
+		t.Fatal("Error constructing interpreter : " + i.Err.Error())
+	}
+}
+
 func TestLookupToken(t *testing.T) {
 
 	//t.Skip()
@@ -41,9 +51,9 @@ func TestLookupToken(t *testing.T) {
 }
 func TestPrint(t *testing.T) {
 
-	f(t, ` ." hello world " `, " hello world")
-	f(t, ` ." hello world" `, " hello world\"", true)
-	f(t, ` ." hello world" " `, " hello world\"")
+	f(t, ` ." hello world " `, " hello world ")
+	f(t, ` ." hello world" `, " hello world")
+	f(t, ` ." hello world" " `, " hello world", true)
 
 	f(t, "DECIMAL 3564 EMIT ", "෬")
 

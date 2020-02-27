@@ -111,16 +111,11 @@ func (i *Interpreter) interpretPrim() {
 
 	case ".\"": // output following texts until a " word is met,
 		// It has to be a SEPARATE " token !
-		// White spaces between tokens are normalized.
-
+		// The end of string is marked with a ", even without white spaces.
 		token := i.scanNextToken()
-		for token != "\"" {
-			if i.Err != nil {
-				return
-			}
-			fmt.Fprintf(i.writer, " %s", token)
-			token = i.scanNextToken()
-		}
+		// TODO behave differently if rs == 0 or not, implement compile mode
+		fmt.Fprintf(i.writer, " %s", token)
+		token = i.scanNextToken()
 
 	case "CR": // emit carriage return
 		fmt.Fprintln(i.writer)

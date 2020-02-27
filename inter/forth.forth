@@ -2,7 +2,7 @@
 
 ( =============================================== )
 
-." Compiling forth.forth definitions version 1.0 "
+( ." Compiling forth.forth definitions version 1.0 " )
 
 : forth.forth 1 0 ;       ( -- major minor )     
                           ( marker for pre loaded definitions )

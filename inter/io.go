@@ -16,7 +16,8 @@ func (i *Interpreter) SetWriter(iow io.Writer) *Interpreter {
 func (i *Interpreter) SetReader(ior io.Reader) *Interpreter {
 	i.scanner = bufio.NewScanner(ior)
 	//i.scanner.Split(bufio.ScanWords)
-	i.scanner.Split(newSplitFunction())
+	i.scanner.Split(i.newSplitFunction())
+	i.readingString = false // reset split function state
 	return i
 }
 
@@ -24,32 +25,35 @@ var _ bufio.SplitFunc
 
 // newSplitFunction generates a split function dedicated to reading
 // both tokens and string.
-func newSplitFunction() bufio.SplitFunc {
-	var readingString = false // state based on previous token
+func (i *Interpreter) newSplitFunction() bufio.SplitFunc {
+	i.readingString = false // state based on previous token
 	return func(buf []byte, eof bool) (advance int, token []byte, err error) {
-		if !readingString {
+		if !i.readingString {
 			advance, token, err = bufio.ScanWords(buf, eof)
 			if string(token) == ".\"" {
-				readingString = true
+				i.readingString = true
 			}
 			return advance, token, err
 		}
 
-		if readingString { // TODO Check vs golang package implementation ...
+		if i.readingString {
+
+			// TODO - remove ending & finishing spaces
+
 			start := 0
-			for width, i := 0, start; i < len(buf); i += width {
+			for width, j := 0, start; j < len(buf); j += width {
 				var r rune
-				r, width = utf8.DecodeRune(buf[i:])
+				r, width = utf8.DecodeRune(buf[j:])
 				if r == '"' {
-					readingString = false
-					return i + width, buf[start:i], nil
+					i.readingString = false
+					return j + width, buf[start:j], nil
 				}
 			}
 			// If we're at EOF, we have a final, non-empty, non-terminated word. Return it.
 
 			if eof && len(buf) > start {
 				// switch back to normal mode
-				readingString = false
+				i.readingString = false
 
 				return len(buf), buf[start:], nil
 
