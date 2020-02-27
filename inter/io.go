@@ -27,9 +27,9 @@ var _ bufio.SplitFunc
 // both tokens and string.
 func (i *Interpreter) newSplitFunction() bufio.SplitFunc {
 	i.readingString = false // state based on previous token
-	return func(buf []byte, eof bool) (advance int, token []byte, err error) {
+	return func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		if !i.readingString {
-			advance, token, err = bufio.ScanWords(buf, eof)
+			advance, token, err = bufio.ScanWords(data, atEOF)
 			if string(token) == ".\"" {
 				i.readingString = true
 			}
@@ -38,28 +38,35 @@ func (i *Interpreter) newSplitFunction() bufio.SplitFunc {
 
 		if i.readingString {
 
-			// TODO - remove ending & finishing spaces
-
 			start := 0
-			for width, j := 0, start; j < len(buf); j += width {
+
+			// skip leading spaces
+			/* for width := 0; start < len(data); start += width {
 				var r rune
-				r, width = utf8.DecodeRune(buf[j:])
+				r, width = utf8.DecodeRune(data[start:])
+				if !unicode.IsSpace(r) {
+					break
+				}
+			}
+			*/
+
+			// slurp string
+			for width, j := 0, start; j < len(data); j += width {
+				var r rune
+				r, width = utf8.DecodeRune(data[j:])
 				if r == '"' {
 					i.readingString = false
-					return j + width, buf[start:j], nil
+					return j + width, data[start:j], nil
 				}
 			}
 			// If we're at EOF, we have a final, non-empty, non-terminated word. Return it.
-
-			if eof && len(buf) > start {
+			if atEOF && len(data) > start {
 				// switch back to normal mode
 				i.readingString = false
-
-				return len(buf), buf[start:], nil
-
+				return len(data), data[start:], nil
 			}
-
-			return start, nil, nil // request more data
+			// ask for more data
+			return start, nil, nil
 		}
 		panic("invalid state")
 	}

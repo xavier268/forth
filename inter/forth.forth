@@ -2,9 +2,9 @@
 
 ( =============================================== )
 
-( ." Compiling forth.forth definitions version 1.0 " )
+." Compiling forth.forth definitions version 0.2 " 
 
-: forth.forth 1 0 ;       ( -- major minor )     
+: forth.forth 0 2 ;       ( -- major minor )     
                           ( marker for pre loaded definitions )
 
       

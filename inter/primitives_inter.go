@@ -114,8 +114,7 @@ func (i *Interpreter) interpretPrim() {
 		// The end of string is marked with a ", even without white spaces.
 		token := i.scanNextToken()
 		// TODO behave differently if rs == 0 or not, implement compile mode
-		fmt.Fprintf(i.writer, " %s", token)
-		token = i.scanNextToken()
+		fmt.Fprintf(i.writer, "%s", token)
 
 	case "CR": // emit carriage return
 		fmt.Fprintln(i.writer)
