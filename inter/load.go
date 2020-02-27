@@ -2,6 +2,7 @@ package inter
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -14,6 +15,28 @@ func (i *Interpreter) Load(ior io.Reader) {
 	i.SetReader(ior)
 	i.Run()
 	i.scanner = old
+
+}
+
+// LoadFile loads the specified file name.
+func (i *Interpreter) LoadFile(fileName string) {
+
+	if i.Err != nil {
+		return
+	}
+
+	f, err := os.Open(fileName)
+	if err != nil {
+		i.Err = err
+		return
+	}
+	defer f.Close()
+	bf := bufio.NewReader(f)
+	i.Load(bf)
+	if i.Err != nil {
+		fmt.Println("Error trying to load ", fileName, " : ", i.Err)
+		return
+	}
 
 }
 
@@ -45,5 +68,9 @@ func (i *Interpreter) initForth() {
 	defer f.Close()
 	bf := bufio.NewReader(f)
 	i.Load(bf)
+
+	if i.Err != nil {
+		panic(i.Err)
+	}
 
 }

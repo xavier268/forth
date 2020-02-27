@@ -1,7 +1,6 @@
 ( this file redefine some additionnal forth words )
 
 ( =============================================== )
-
 ." Compiling forth.forth definitions version 0.2 " 
 
 : forth.forth 0 2 ;       ( -- major minor )     
