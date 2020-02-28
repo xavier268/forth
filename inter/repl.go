@@ -48,6 +48,16 @@ func (i *Interpreter) Repl() {
 
 	for { // repl loop for that line only
 
+		// normal exit
+		if i.Err == ErrQuit {
+			return
+		}
+		// all other errors, print and reset error
+		if i.Err != nil {
+			fmt.Fprintf(i.writer, "%s%s%s\n", ColorRed, i.Err.Error(), ColorOff)
+			i.Err = nil
+		}
+
 		fmt.Fprint(i.writer, i.Prompt())
 
 		if !linescan.Scan() {
@@ -59,15 +69,7 @@ func (i *Interpreter) Repl() {
 		i.scanner.Split(i.newSplitFunction())
 
 		i.Run()
-		// normal exit
-		if i.Err == ErrQuit {
-			return
-		}
-		// all other errors, print and reset error
-		if i.Err != nil {
-			fmt.Fprintf(i.writer, "%s%s%s\n", ColorRed, i.Err.Error(), ColorOff)
-			i.Err = nil
-		}
+
 	}
 
 }
