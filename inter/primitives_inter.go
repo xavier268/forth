@@ -1,6 +1,7 @@
 package inter
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 )
@@ -19,7 +20,7 @@ func (i *Interpreter) interpretPrim() {
 	nfa := i.ip - 1
 	w, ok := i.words[nfa]
 	if !ok {
-		i.Err = ErrNotPrimitive
+		i.Err = ErrNotPrimitive(nfa)
 		return
 	}
 
@@ -308,6 +309,46 @@ func (i *Interpreter) interpretPrim() {
 		nextip, _ := i.rs.pop()
 		i.rs.push(nextip + 1)
 		i.ds.push(i.mem[nextip])
+
+	case "<BUILDS":
+		token := i.scanNextToken()
+		if i.Err != nil {
+			return
+		}
+		// create header
+		i.createHeader(token)
+
+		nfad := i.lookupPrimitive("$$DOES$$")
+
+		// store $$DOES$$ cfa, and
+		// an empty slot,taht DOES> will fill
+		// write -1 in it to generate errors if not filled correctly !
+		i.mem = append(i.mem, nfad+1, -1)
+
+		// save the address of the reserved slot
+		// in the return stack, just under the top
+		next, _ := i.rs.pop()
+		i.rs.push(len(i.mem) - 1)
+		i.rs.push(next)
+
+		// continue interpreting next <BUILDS instructions
+
+	case "DOES>":
+		// expect at least 2 values in return stack.
+		if len(i.rs.data) < 2 {
+			i.Err = errors.New("you need to use <BUILDS before calling DOES>")
+		}
+		// get the address of the process that $$DOES$$ will execute
+		// store the instructions set2 in the reserved address
+		addrProc2, _ := i.rs.pop()
+		reservedAddr, _ := i.rs.pop()
+		i.mem[reservedAddr] = addrProc2
+
+		// do NOT interpret further at this stage, so force a further pop
+		// and send to execution
+		i.ip, _ = i.rs.pop()
+
+	case "$$DOES$$":
 
 	case "CONSTANT":
 

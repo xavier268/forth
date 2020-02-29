@@ -1,5 +1,13 @@
 ( test file )
 CR ." Compiling test.forth file "
-: test ." test.forth was successfully loaded " ;
-CR test 
-CR BYE
+
+( Work In Progress : testing build/does ... )
+
+
+: KONSTANT 1001 <BUILDS 1002 DOES> 1003  ;
+
+INFO
+
+KONSTANT KK
+
+INFO

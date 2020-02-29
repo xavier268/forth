@@ -14,7 +14,9 @@ func ErrWrongContextWord(token string) error {
 }
 
 // ErrNotPrimitive error
-var ErrNotPrimitive = errors.New("not a valid primitive cfa")
+func ErrNotPrimitive(nfa int) error {
+	return fmt.Errorf("not a valid primitive nfa : %d", nfa)
+}
 
 // ErrMissingParent error
 var ErrMissingParent = errors.New("missing closing parenthesis")

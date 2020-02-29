@@ -28,6 +28,7 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive(":", false)
 	i.addPrimitive(";", true)
 	i.addPrimitive("CONSTANT", false)
+	i.addPrimitive("$$CONSTANT$$", false) // Internal pseudo keywords
 	i.addPrimitive("NOOP", false)
 	i.addPrimitive("FORGET", false)
 	i.addPrimitive("IMMEDIATE", false)
@@ -45,12 +46,13 @@ func (i *Interpreter) initPrimitives() {
 	// TODO conditions
 
 	// TODO BUILD/DOES , loops, flow control, ..
+	i.addPrimitive("<BUILDS", false)
+	i.addPrimitive("DOES>", false)
+	i.addPrimitive("$$DOES$$", false) // internal pseudo keyword
 
 	// TODO get token should read string terminated correctly ?
 
 	// ------------------------------------------
-	// Internal pseudo keywords
-	i.addPrimitive("$$CONSTANT$$", false)
 
 	// flag last primitive nfa
 	i.lastPrimitiveNfa = i.lastNfa
