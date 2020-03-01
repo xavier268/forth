@@ -315,13 +315,18 @@ func (i *Interpreter) interpretPrim() {
 		if i.Err != nil {
 			return
 		}
+		// expect at least 1 value in RS
+		if i.rs.empty() {
+			i.Err = fmt.Errorf("you cannot use <BUILDS in this context - no return stack")
+			return
+		}
 		// create header
 		i.createHeader(token)
 
 		nfad := i.lookupPrimitive("$$DOES$$")
 
 		// store $$DOES$$ cfa, and
-		// an empty slot,taht DOES> will fill
+		// an empty slot,that DOES> will fill
 		// write -1 in it to generate errors if not filled correctly !
 		i.mem = append(i.mem, nfad+1, -1)
 
@@ -337,18 +342,37 @@ func (i *Interpreter) interpretPrim() {
 		// expect at least 2 values in return stack.
 		if len(i.rs.data) < 2 {
 			i.Err = errors.New("you need to use <BUILDS before calling DOES>")
+			return
 		}
-		// get the address of the process that $$DOES$$ will execute
-		// store the instructions set2 in the reserved address
+		// get the addr for further interpretations following the DOES>
+		// instruction (Proc2)
 		addrProc2, _ := i.rs.pop()
-		reservedAddr, _ := i.rs.pop()
-		i.mem[reservedAddr] = addrProc2
 
-		// do NOT interpret further at this stage, so force a further pop
-		// and send to execution
-		i.ip, _ = i.rs.pop()
+		// get the reserverd word to store that address
+		addrResevd, _ := i.rs.pop()
+		// store the instructions set of Proc2
+		// (immediately following current ip) in the reserved address
+		i.mem[addrResevd] = addrProc2
+
+		// do NOT interpret further at this stage,
+		// this will not happen since we poped the addr already
 
 	case "$$DOES$$":
+		if i.rs.empty() {
+			i.Err = fmt.Errorf("the return stack is inconsistent(empty) while interpreting $$DOES$$")
+		}
+		// get the addr where processing would normally continue
+		next, _ := i.rs.pop()
+		// this points to the proc2Addr
+		proc2Addr := i.mem[next]
+		// the data starts at the following cell
+		dataAddr := next + 1
+		// push data addr on DATA stack
+		i.ds.push(dataAddr)
+		// jump to proc2Addr
+		i.rs.push(proc2Addr)
+
+		// continue interpretation ...
 
 	case "CONSTANT":
 
