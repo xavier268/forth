@@ -146,10 +146,10 @@ func TestReturnStack(t *testing.T) {
 	f(t, "R@", "", true) // stack underflow
 	f(t, `: XX R> ." abcd" ; XX `, "")
 	f(t, ": XX R>  ; XX  HERE - . ", " -1")
+	f(t, ` : test R> ." never seen "  ; test `, "")
 
-	f(t, " : test R> >R ; test ", "")
-	f(t, ` : test R> ." hi " >R ; test `, "")
-	f(t, ` : test R@ ." hi " >R ; test `, "hi hi ", true) // datstack underflow
+	f(t, ` : test R@ ." hi " >R ; test `, "hi hi ", true)            // datastack underflow
+	f(t, ` : test R@ DUP ." hi " 1 + >R ; test `, "hi hi hi ", true) // datastack underflow
 
 }
 

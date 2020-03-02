@@ -1,5 +1,8 @@
 package inter
 
+// OverFlowLimit used to detect infinite loops.
+const OverFlowLimit = 1000
+
 // stack is a basic stack type.
 type stack struct {
 	data []int
@@ -13,6 +16,9 @@ func newStack() *stack {
 // Push on stack
 func (s *stack) push(x ...int) {
 	s.data = append(s.data, x...)
+	if len(s.data) > OverFlowLimit {
+		panic("stack overflowlimit was reached - infinite loop suspected")
+	}
 }
 
 // empty test if stack is empty
