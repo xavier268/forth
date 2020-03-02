@@ -8,7 +8,7 @@
 
 : CONSTANT  ( value -- )
 <BUILDS ( value -- )
-1 ALLOT HERE 1 - ! ( ) 
+, ( ) 
 DOES> ( addr -- )
 @ ( -- value )
 ;

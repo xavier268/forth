@@ -34,23 +34,25 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("IMMEDIATE", false)
 	i.addPrimitive("[", true)
 	i.addPrimitive("]", false)
+
+	i.addPrimitive("<BUILDS", false)
+	i.addPrimitive("DOES>", false)
+	i.addPrimitive("$$DOES$$", false) // internal pseudo keyword
 	// -----------------------------------------
 	// special compile mode behaviour
 	i.addPrimitive("LITERAL", false) // compile : (n -- ) comp nuber
 	// 									interpr : ( -- n) get number
 
+	// ------------------------------------------
 	// TODO string processing
 
-	// TODO vocabularies, vlist, smudge
+	// TODO vocabularies, vlist,
+
+	// TODO smudge, recursion
 
 	// TODO conditions
 
-	// TODO BUILD/DOES , loops, flow control, ..
-	i.addPrimitive("<BUILDS", false)
-	i.addPrimitive("DOES>", false)
-	i.addPrimitive("$$DOES$$", false) // internal pseudo keyword
-
-	// TODO get token should read string terminated correctly ?
+	// TODO loops, flow control, ..
 
 	// ------------------------------------------
 
