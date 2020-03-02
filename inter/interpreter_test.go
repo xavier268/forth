@@ -125,8 +125,18 @@ func TestBuildDoes(t *testing.T) {
 	out += "dd"
 	f(t, in, out)
 
-	in += " DROP" // add should be on stack
+	in += " DROP" // addr should be on stack
 	out += ""
+	f(t, in, out)
+
+	// use in compound word ...
+	in += " : TT xx ;"
+	out += ""
+	f(t, in, out)
+	f(t, in+" .", out, true) // stack underflow expected
+
+	in += " TT DROP"
+	out += "dd"
 	f(t, in, out)
 
 }
