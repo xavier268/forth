@@ -107,6 +107,30 @@ func TestConstantAndForget(t *testing.T) {
 
 }
 
+func TestBuildDoes(t *testing.T) {
+
+	in := `	: DEF [ ." aa"] ." bb" <BUILDS ." cc" DOES> ." dd" ; `
+	out := "aa"
+	f(t, in, out)
+
+	in += " DEF xx"
+	out += "bbcc"
+	f(t, in, out)
+
+	in2 := in + " ."
+	out += ""
+	f(t, in2, out, true) // stack underflow
+
+	in += " xx"
+	out += "dd"
+	f(t, in, out)
+
+	in += " DROP" // add should be on stack
+	out += ""
+	f(t, in, out)
+
+}
+
 func TestVariable(t *testing.T) {
 	f(t, "VARIABLE v v @ .", " 0")
 	f(t, "VARIABLE v 555 v ! v @ . ", " 555")
