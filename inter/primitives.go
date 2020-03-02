@@ -35,6 +35,10 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("[", true)
 	i.addPrimitive("]", false)
 
+	i.addPrimitive("R>", false) // ( -- n ) pop RS, and put it on DS
+	i.addPrimitive("R@", false) // ( -- n ) just copt top of RS to DS
+	i.addPrimitive(">R", false) // ( n -- ) push n on top of RS
+
 	i.addPrimitive("<BUILDS", false)
 	i.addPrimitive("DOES>", false)
 	i.addPrimitive("$$DOES$$", false) // internal pseudo keyword

@@ -1,22 +1,25 @@
 ( this file redefine some additionnal forth words )
 
 ( =============================================== )
-." Compiling forth.forth definitions version 0.3 " 
+( Compiling forth.forth definitions ) 
 
-: forth.forth 0 3 ;       ( -- major minor )     
-                          ( marker for pre loaded definitions )
+: VERSION 0 3 ;     ( -- major minor )     
+                    ( marker for preloaded  FORTH definitions )
 
 : CONSTANT  ( value -- )
-<BUILDS ( value -- )
+<BUILDS ( value -- ) ( constant value should be available on DATA stack )
 , ( ) 
-DOES> ( addr -- )
-@ ( -- value )
+DOES> ( addr -- ... )
+@ 
+( ... -- value )
 ;
 
 : VARIABLE 
- <BUILDS 
+ <BUILDS ( -- )
   1 ALLOT ( allot 1 data cell )
-  DOES> ( dataAddr -- ) ( fine, do nothing ! )
+  DOES> ( dataAddr -- ... )
+  ( fine, data addr already on stack, do nothing ! )
+  ( ... -- dataAddr )
 ;
 
 : DECIMAL       10 BASE ! ;

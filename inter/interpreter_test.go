@@ -141,6 +141,18 @@ func TestBuildDoes(t *testing.T) {
 
 }
 
+func TestReturnStack(t *testing.T) {
+	f(t, "R>", "", true) // stack underflow
+	f(t, "R@", "", true) // stack underflow
+	f(t, `: XX R> ." abcd" ; XX `, "")
+	f(t, ": XX R>  ; XX  HERE - . ", " -1")
+
+	f(t, " : test R> >R ; test ", "")
+	f(t, ` : test R> ." hi " >R ; test `, "")
+	f(t, ` : test R@ ." hi " >R ; test `, "hi hi ", true) // datstack underflow
+
+}
+
 func TestVariable(t *testing.T) {
 	f(t, "VARIABLE v v @ .", " 0")
 	f(t, "VARIABLE v 555 v ! v @ . ", " 555")

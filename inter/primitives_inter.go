@@ -192,6 +192,20 @@ func (i *Interpreter) interpretPrim() {
 		}
 		i.ds.data[l-2], i.ds.data[l-1] = i.ds.data[l-1], i.ds.data[l-2]
 
+	case "R>":
+		var d int
+		d, i.Err = i.rs.pop()
+		i.ds.push(d)
+
+	case "R@":
+		var d int
+		d, i.Err = i.rs.top()
+		i.ds.push(d)
+	case ">R":
+		var d int
+		d, i.Err = i.ds.pop()
+		i.rs.push(d)
+
 	case "+":
 		n, err := i.ds.pop()
 		if err != nil {
