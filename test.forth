@@ -6,7 +6,7 @@ CR ." Compiling test.forth file " CR
 
 : VARIABLE [ ." Redefining VARIABLE " CR ] 
  <BUILDS 
-  ." Creating the head of the VARIABLE " 
+  ." Creating head of a new VARIABLE " 
   1 ALLOT ( allot 1 data cell )
   DOES> ( dataAddr -- ) ( fine, do nothing ! )
   DUP ." Accessing variable at address : " . CR ( <--- DEBUG TRACE )
@@ -14,7 +14,7 @@ CR ." Compiling test.forth file " CR
 
 : CONSTANT [ ." Redefining CONSTANT " CR ] ( value -- )
 <BUILDS 
-." Creating head of CONSTANT "
+." Creating head of a new CONSTANT "
 1 ALLOT
 ( value -- )
 HERE 1 - ! ( ) 

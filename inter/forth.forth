@@ -1,21 +1,23 @@
 ( this file redefine some additionnal forth words )
 
 ( =============================================== )
-." Compiling forth.forth definitions version 0.2 " 
+." Compiling forth.forth definitions version 0.3 " 
 
-: forth.forth 0 2 ;       ( -- major minor )     
+: forth.forth 0 3 ;       ( -- major minor )     
                           ( marker for pre loaded definitions )
 
-      
+: CONSTANT  ( value -- )
+<BUILDS ( value -- )
+1 ALLOT HERE 1 - ! ( ) 
+DOES> ( addr -- )
+@ ( -- value )
+;
 
-: VARIABLE  ( -- )        ( VARIABLE <XXX> : creates a variable for XXX ) 
-            ( -- addr)    ( Upon exection of XXX )
-                          ( Initial variable value is 0 )
-    
-    HERE 3 +    ( where to store the value )    
-    CONSTANT    
-    1 ALLOT     ( reserve memory for value )
-    ;  
+: VARIABLE 
+ <BUILDS 
+  1 ALLOT ( allot 1 data cell )
+  DOES> ( dataAddr -- ) ( fine, do nothing ! )
+;
 
 : DECIMAL       10 BASE ! ;
 : HEX           16 BASE ! ;  

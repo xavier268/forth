@@ -107,6 +107,11 @@ func TestConstantAndForget(t *testing.T) {
 
 }
 
+func TestVariable(t *testing.T) {
+	f(t, "VARIABLE v v @ .", " 0")
+	f(t, "VARIABLE v 555 v ! v @ . ", " 555")
+}
+
 func TestComment(t *testing.T) {
 
 	f(t, "2 3 ( 55 kjhkjh ) + ", "")

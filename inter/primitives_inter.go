@@ -374,38 +374,42 @@ func (i *Interpreter) interpretPrim() {
 
 		// continue interpretation ...
 
-	case "CONSTANT":
+	/*
 
-		token := i.scanNextToken()
-		if i.Err != nil {
-			return
-		}
+		case "CONSTANT":
 
-		// create header
-		i.createHeader(token)
+			token := i.scanNextToken()
+			if i.Err != nil {
+				return
+			}
 
-		// Get the number,
-		var n int
-		n, i.Err = i.ds.pop()
-		if i.Err != nil {
-			return
-		}
+			// create header
+			i.createHeader(token)
 
-		// compile the number with the $$CONSTANT$$ cfa
-		nfa := i.lookupPrimitive("$$CONSTANT$$")
-		i.mem = append(i.mem, nfa+1, n)
+			// Get the number,
+			var n int
+			n, i.Err = i.ds.pop()
+			if i.Err != nil {
+				return
+			}
 
-	case "$$CONSTANT$$":
+			// compile the number with the $$CONSTANT$$ cfa
+			nfa := i.lookupPrimitive("$$CONSTANT$$")
+			i.mem = append(i.mem, nfa+1, n)
 
-		if i.rs.empty() {
-			i.Err = ErrWrongContextWord(w.name)
-			return
-		}
+		case "$$CONSTANT$$":
 
-		// the number is pointed by the return stack
-		// get it, and drop a return stack level
-		nextip, _ := i.rs.pop()
-		i.ds.push(i.mem[nextip])
+			if i.rs.empty() {
+				i.Err = ErrWrongContextWord(w.name)
+				return
+			}
+
+			// the number is pointed by the return stack
+			// get it, and drop a return stack level
+			nextip, _ := i.rs.pop()
+			i.ds.push(i.mem[nextip])
+
+	*/
 
 	default:
 		panic("primitive '" + w.name + "' is not implementd")
