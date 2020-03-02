@@ -27,8 +27,8 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("CR", false)
 	i.addPrimitive(":", false)
 	i.addPrimitive(";", true)
-	i.addPrimitive("CONSTANT", false)
-	i.addPrimitive("$$CONSTANT$$", false) // Internal pseudo keywords
+	// i.addPrimitive("CONSTANT", false)
+	// i.addPrimitive("$$CONSTANT$$", false) // Internal pseudo keywords
 	i.addPrimitive("NOOP", false)
 	i.addPrimitive("FORGET", false)
 	i.addPrimitive("IMMEDIATE", false)
