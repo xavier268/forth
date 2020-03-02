@@ -144,12 +144,15 @@ func TestBuildDoes(t *testing.T) {
 func TestReturnStack(t *testing.T) {
 	f(t, "R>", "", true) // stack underflow
 	f(t, "R@", "", true) // stack underflow
-	f(t, `: XX R> ." abcd" ; XX `, "")
-	f(t, ": XX R>  ; XX  HERE - . ", " -1")
-	f(t, ` : test R> ." never seen "  ; test `, "")
+	f(t, `: XX R> ; `, "")
+	f(t, `: XX R> ; XX `, "", true) // stack underflow
+	f(t, ": XX R>  ; : YY XX ; YY  HERE - . ", " -1")
 
-	f(t, ` : test R@ ." hi " >R ; test `, "hi hi ", true)            // datastack underflow
-	f(t, ` : test R@ DUP ." hi " 1 + >R ; test `, "hi hi hi ", true) // datastack underflow
+	// unbalanced return stack test, implemenation dependent
+	f(t, `: XX R>  ; : YY XX ." never displayed " ; YY  HERE - . `, " -19")
+
+	// balanced rs tests
+	f(t, ` : test  >R DUP R> ; 1000 2000 test . . .`, " 2000 1000 1000")
 
 }
 

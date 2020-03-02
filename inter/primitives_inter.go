@@ -204,20 +204,25 @@ func (i *Interpreter) interpretPrim() {
 		}
 		i.ds.data[l-2], i.ds.data[l-1] = i.ds.data[l-1], i.ds.data[l-2]
 
-	case "R>":
-		var d int
+	case "R>": // preserve top of stack, pointing on next instruction
+		var d, next int
+		next, i.Err = i.rs.pop()
 		d, i.Err = i.rs.pop()
 		i.ds.push(d)
+		i.rs.push(next)
 
-	case "R@":
-		var d int
+	case "R@": // preserve top of stack, pointing on next instruction
+		var d, next int
+		next, i.Err = i.rs.pop()
 		d, i.Err = i.rs.top()
 		i.ds.push(d)
-	case ">R":
-		var d int
+		i.rs.push(next)
+	case ">R": // preserve top of stack, pointing on next instruction
+		var d, next int
+		next, i.Err = i.rs.pop()
 		d, i.Err = i.ds.pop()
 		i.rs.push(d)
-
+		i.rs.push(next)
 	case "+":
 		n, err := i.ds.pop()
 		if err != nil {
