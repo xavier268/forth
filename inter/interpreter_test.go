@@ -254,3 +254,17 @@ func f(t *testing.T, source, expect string, expecterror ...bool) {
 	}
 
 }
+
+func TestTick(t *testing.T) {
+
+	// constant value is stored at pfa +1, check vs tick
+	f(t, "55 CONSTANT x ' x 1 + @ .", " 55")
+
+	// variable points to pfa +1, check vs tick
+	f(t, "VARIABLE v ' v 1 + v -  . ", " 0")
+
+	// compile mode test
+	// pfa of v is compiled into test definition, then checked
+	f(t, "VARIABLE v : test ' v 1 + ; test v - . ", " 0")
+
+}

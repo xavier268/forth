@@ -44,9 +44,16 @@ func (i *Interpreter) initPrimitives() {
 	i.addPrimitive("$$DOES$$", false) // internal pseudo keyword
 	// -----------------------------------------
 	// special compile mode behaviour
-	i.addPrimitive("LITERAL", false) // compile : (n -- ) comp nuber
-	// 									interpr : ( -- n) get number
+	// -----------------------------------------
 
+	// interpr : ( -- n) get the number that was compiled
+	// compile : (n -- ) comp number in memory
+	i.addPrimitive("LITERAL", false)
+
+	// interpr : ( -- pfa) get the pfa that was compiled,
+	//                     or reading from stream if RS is empty
+	// compile : ( -- ) write the pfa (nfa +2) of the next word as a LITERAL number
+	i.addPrimitive("'", false) // Tick
 	// ------------------------------------------
 	// TODO string processing
 

@@ -18,6 +18,14 @@ func (i *Interpreter) compilePrim(wcfa int, w *word) {
 		}
 		i.compileNum(n)
 
+	case "'":
+		token := i.scanNextToken()
+		if i.Err != nil {
+			return
+		}
+		pfa := 2 + i.lookup(token)
+		i.compileNum(pfa)
+
 	case ".\"":
 		token := i.scanNextToken()
 		rtok := []rune(token) // group by rune

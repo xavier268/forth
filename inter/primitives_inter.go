@@ -110,6 +110,18 @@ func (i *Interpreter) interpretPrim() {
 
 		i.ds.push(i.mem[a])
 
+	case "'": // on intrepretation, get the next token,
+		// 			and put its pfa on data stack
+		token := i.scanNextToken()
+		if i.Err != nil {
+			return
+		}
+		pfa := 2 + i.lookup(token)
+		if i.Err != nil {
+			return
+		}
+		i.ds.push(pfa)
+
 	case ".\"":
 		// output following texts until a " word is met,
 		// The end of string is marked with a ", even without white spaces.
