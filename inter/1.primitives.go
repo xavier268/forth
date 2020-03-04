@@ -32,6 +32,11 @@ func (i *Interpreter) initPrimitives() {
 	// default finishing function
 	// normally, ip=0, and read one more token,
 	next := func(i *Interpreter) {
+		// if interpret and non empty rs, increment ip
+		if i.ip != 0 && !i.compileMode && !i.rs.empty() {
+			i.ip++
+			return
+		}
 		i.ip = 0
 	}
 
@@ -399,17 +404,22 @@ func (i *Interpreter) initPrimitives() {
 			// write cfa
 			i.mem = append(i.mem, w.cfa)
 			// shift back to interpret mode
-			// fmt.Println("Switching to interpret mode")
+			fmt.Println("DEBUG : Switching to interpret mode")
 			i.compileMode = false
 			i.ip = 0
 		}
 		// normal interpretation in compound word
 		// pop return address
-		ip, err := i.rs.pop()
-		if err != nil {
+		if i.rs.empty() {
+			i.ip = 0
+			return
+		}
+		i.ip, i.Err = i.rs.pop()
+		if i.Err != nil {
+			i.ip = 0
 			return // done
 		}
-		i.ip = ip
+
 	}
 	/*
 		// ( -- n) go get the number that follows and put it on stack

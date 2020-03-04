@@ -18,7 +18,10 @@ func TestNewInterpreter(t *testing.T) {
 		t.Fatal("Error constructing interpreter : " + i.Err.Error())
 	}
 }
-
+func TestCompoundWord(t *testing.T) {
+	f(t, " : test . ; ", "")
+	f(t, " : test . ; 1000 test ", " 1000")
+}
 func TestPrint(t *testing.T) {
 
 	// use at repl level

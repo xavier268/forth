@@ -9,7 +9,11 @@
             "type": "go",
             "request": "launch",
             "mode": "test",
-            "program": "${workspaceFolder}/inter/"
+            "program": "${workspaceFolder}/inter/",
+
+            // filter selected tests
+            "args": ["-test.run" , "TestCompound"]
+
         },
         {
             "name": "Launch Package",

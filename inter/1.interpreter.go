@@ -41,6 +41,8 @@ func NewInterpreter() *Interpreter {
 	i.SetReader(os.Stdin)
 
 	i.ds, i.rs = newStack(), newStack()
+	i.ds.errUnder = fmt.Errorf("data stack underflow")
+	i.rs.errUnder = fmt.Errorf("return stack underflow")
 
 	i.words = make(map[int]*word)
 
