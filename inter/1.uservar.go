@@ -2,7 +2,8 @@ package inter
 
 // definition of  User Variables
 const (
-	UVBase = iota
+	UVStartMarker = iota // do not use, to avoid zero addressing
+	UVBase
 	UVEndMarker
 )
 

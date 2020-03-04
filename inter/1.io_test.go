@@ -3,7 +3,6 @@ package inter
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"testing"
 )
 
@@ -30,7 +29,7 @@ func ts(t *testing.T, s string, res ...string) {
 	sc := bufio.NewScanner(bytes.NewBuffer([]byte(s)))
 	sc.Split(i.newSplitFunction())
 
-	fmt.Println()
+	//fmt.Println()
 
 	for i := range res {
 		if !sc.Scan() {
@@ -39,7 +38,7 @@ func ts(t *testing.T, s string, res ...string) {
 		if token := sc.Text(); token != res[i] {
 			t.Fatal("Expected token :", res[i], " Got :", token)
 		}
-		fmt.Println(res[i])
+		//fmt.Println(res[i])
 	}
 	if sc.Scan() {
 		t.Fatal("Remaining token when it should be finished : ", sc.Text())

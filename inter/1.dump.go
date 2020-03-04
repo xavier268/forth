@@ -8,7 +8,7 @@ import (
 // dump
 func (i *Interpreter) dump() {
 
-	fmt.Printf("\nWords dumps, (size : %d)\n--NFA-----CFA----Imm.-----Word---------\n", len(i.words))
+	fmt.Printf("\nWords dumps, (size : %d)\n--NFA-----CFA--Flags-----Word---------\n", len(i.words))
 
 	var keys sort.IntSlice
 	for k := range i.words {
@@ -17,7 +17,14 @@ func (i *Interpreter) dump() {
 	sort.Sort(keys)
 	for _, k := range keys {
 		w := i.words[k]
-		fmt.Printf("%4d\t%4d\t%v\t%s\n", k, k+1, w.immediate, w.name)
+		flags := []byte("---")
+		if w.immediate {
+			flags[0] = 'i'
+		}
+		if i.isPrimitive(w) {
+			flags[2] = 'P'
+		}
+		fmt.Printf("%4d\t%4d\t%s\t%s\n", w.nfa, w.cfa, flags, w.name)
 	}
 
 	fmt.Printf("Memory dump, (size : %d) ", len(i.mem))

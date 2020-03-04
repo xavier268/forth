@@ -3,6 +3,7 @@ package inter
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 )
@@ -48,13 +49,17 @@ func (i *Interpreter) Repl() {
 
 	for { // repl loop for that line only
 
-		// normal exit
-		if i.Err == ErrQuit {
+		//  termination was requested
+		if i.terminate {
 			return
 		}
-		// all other errors, print and reset error
+
+		// all other errors, print error and reset error
 		if i.Err != nil {
-			fmt.Fprintf(i.writer, "%s%s%s\n", ColorRed, i.Err.Error(), ColorOff)
+			if i.Err != io.EOF { // do not print EOF while in repl
+				fmt.Fprintf(i.writer, "%s%s%s\n", ColorRed, i.Err.Error(), ColorOff)
+			}
+			// reset error
 			i.Err = nil
 		}
 

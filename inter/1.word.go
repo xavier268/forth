@@ -1,9 +1,26 @@
 package inter
 
+import "fmt"
+
 type word struct {
 	name      string
 	immediate bool
 	smudge    bool
+	compil    func(i *Interpreter)
+	inter     func(i *Interpreter)
+	nfa, cfa  int
+}
+
+// createHeader creates a new header in dictionnary.
+// updating words, lastNfa.
+// return the created object that was added to the words map.
+func (i *Interpreter) createHeader(token string) *word {
+	nfa := len(i.mem)
+	i.mem = append(i.mem, i.lastNfa)
+	w := &word{token, false, false, nil, nil, nfa, nfa + 1}
+	i.words[nfa] = w
+	i.lastNfa = nfa
+	return w
 }
 
 // lookup most recent token in dictionnary, using the chain of lfa.
@@ -34,6 +51,11 @@ func (i *Interpreter) lookupFrom(lastnfa int, token string) (nfa int) {
 		nfa = prevnfa
 		prevnfa = i.mem[nfa]
 	}
-	i.Err = ErrWordNotFound(token)
+	i.Err = fmt.Errorf("this token is unknown : %s", token)
 	return 0
+}
+
+// is the provided word a primitive ?
+func (i *Interpreter) isPrimitive(w *word) bool {
+	return w.nfa <= i.lastPrimitiveNfa
 }

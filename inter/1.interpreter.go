@@ -2,9 +2,9 @@ package inter
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"os"
-	"strconv"
 )
 
 // Interpreter for forth
@@ -13,21 +13,22 @@ type Interpreter struct {
 	writer  io.Writer
 	// Data stack, return stack
 	ds, rs *stack
+	// next address to interpret
+	ip int
 	// Mem is the main memory,
 	// where the dictionnary lives
 	mem []int
-	// map nfa to the string details and flags
+	// map NFA to the string details and flags,
+	// including implementations details for primitives
 	words map[int]*word
 	// CompileMode (or interpret) mode ?
 	compileMode bool
 	// reading string or normal token scan ?
 	readingString bool
-	//are we currently porcessing a comment ?
-	commentMode bool
+	// set it to terminate the repl loop
+	terminate bool
 	// Err contains first interpreter error
 	Err error
-	// next address to interpret
-	ip int
 
 	// lastNfa, lastPrimitiveNfa
 	lastNfa, lastPrimitiveNfa int
@@ -45,41 +46,90 @@ func NewInterpreter() *Interpreter {
 
 	i.initUserVars()
 	i.initPrimitives()
-	i.initForth()
+	//i.initForth()
 	return i
 }
 
-// Run the interpreter, until eof
+// Run the interpreter, until eof or another error
 func (i *Interpreter) Run() {
-	for {
-		if !i.scanner.Scan() {
-			// EOF
-			return
-		}
-		token := i.scanner.Text()
 
-		// remove comments
-		if i.commentMode {
-			if token == ")" {
-				i.commentMode = false
+	for !i.terminate && i.Err == nil {
+
+		st := i.getNextToken()
+		//fmt.Printf("DEBUG : just read token : %+v\n", st)
+
+		if i.terminate || i.Err != nil || st.t == errorT {
+			if i.Err == nil {
+				i.Err = st.err
 			}
-			continue // read next
-		}
-		if !i.commentMode && token == "(" {
-			i.commentMode = true
-			continue // read next
+			break
 		}
 
-		// continue eval ...
-		i.Eval(token)
-		if i.Err != nil {
-			i.Abort()
-			return
-		}
+		for i.Err == nil { // inner loop, processing inter/compil
 
+			fmt.Printf("DEBUG : inner loop, st = %+v\n", st)
+
+			switch st.t {
+			case errorT:
+				i.Err = st.err
+				return
+			case numberT:
+				if i.compileMode {
+					cfalit := 1 + i.lookupPrimitive("literal")
+					i.mem = append(i.mem, cfalit, st.v)
+					i.ip = 0
+				} else {
+					i.ds.push(st.v)
+					i.ip = 0
+				}
+			case primitiveT, compoundT:
+				w := i.words[st.v-1] // read word is indexed on NFA, but st contains CFA !!
+				fmt.Printf("DEBUG : about to eval %+v\n", w)
+				i.ip = w.cfa
+				i.eval(w)
+			default:
+				panic("invalid state in Run-switch")
+			}
+
+			if i.ip == 0 {
+				break // out of inner loop, so read another token
+			}
+
+		}
+	}
+
+	if i.Err == io.EOF {
+		// ignore EOF when returning from Run
+		i.Err = nil
+	}
+
+}
+
+// process one step of the interpreter
+func (i *Interpreter) eval(w *word) {
+
+	fmt.Printf("DEBUG: evaluating : %+v\n", w)
+
+	if w == nil {
+		panic("invalid state - nil word to eval")
+	}
+	if i.isPrimitive(w) { // primitive
+		if i.compileMode && !w.immediate {
+			w.compil(i)
+		} else {
+			w.inter(i)
+		}
+	} else { // compound word
+		if i.compileMode && !w.immediate {
+			i.mem = append(i.mem, w.cfa)
+		} else {
+			i.rs.push(i.ip + 1)
+			i.ip = i.mem[i.ip]
+		}
 	}
 }
 
+/*
 // Eval evaluates token.
 func (i *Interpreter) Eval(token string) {
 
@@ -150,6 +200,8 @@ func (i *Interpreter) compile(wcfa int) {
 	i.compilePrim(wcfa, w)
 }
 
+
+
 // Interpret the word whose cfa is pointed by the ip pointer
 func (i *Interpreter) interpret() {
 
@@ -168,3 +220,5 @@ func (i *Interpreter) interpret() {
 	i.interpret()       // recurse on the dereferenced cfa
 	return
 }
+
+*/
