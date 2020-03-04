@@ -9,8 +9,8 @@ type word struct {
 	// TODO
 	// store the functons in an array indexed on cfa ?
 	// avoid defining functions with interpreter parameter ?
-	compil   func(i *Interpreter)
-	inter    func(i *Interpreter)
+	compil   func()
+	inter    func()
 	nfa, cfa int
 }
 

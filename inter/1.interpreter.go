@@ -89,9 +89,9 @@ func (i *Interpreter) Run() {
 			// set ip to the primitive cfa value
 			i.ip = w.cfa
 			if i.compileMode && !w.immediate {
-				w.compil(i)
+				w.compil()
 			} else {
-				w.inter(i)
+				w.inter()
 			}
 			continue // getNextToken
 		}
@@ -126,9 +126,9 @@ func (i *Interpreter) eval() {
 		if i.ip <= 1+i.lastPrimitiveNfa {
 			w := i.words[i.ip-1]
 			if i.compileMode && !w.immediate {
-				w.compil(i)
+				w.compil()
 			} else {
-				w.inter(i)
+				w.inter()
 			}
 		}
 	}
