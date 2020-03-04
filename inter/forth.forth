@@ -3,7 +3,7 @@
 ( =============================================== )
 ( Compiling forth.forth definitions ) 
 
-: VERSION 0 3 ;     ( -- major minor )     
+: VERSION 0 4 ;     ( -- major minor )     
                     ( marker for preloaded  FORTH definitions )
 
 : CONSTANT  ( value -- )
