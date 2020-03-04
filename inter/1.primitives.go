@@ -287,19 +287,6 @@ func (i *Interpreter) initPrimitives() {
 		next(i)
 	}
 
-	// ( n1 n2  -- n1 n2 n1) over the stack
-	w = i.addPrimitive("over")
-	w.inter = func(i *Interpreter) {
-		var n1, n2 int
-		n2, _ = i.ds.pop()
-		n1, i.Err = i.ds.pop()
-		if i.Err != nil {
-			return
-		}
-		i.Err = i.ds.push(n1, n2, n1)
-		next(i)
-	}
-
 	// ( n1 n2  -- n2 n1) swap the stack
 	w = i.addPrimitive("swap")
 	w.inter = func(i *Interpreter) {
@@ -349,11 +336,54 @@ func (i *Interpreter) initPrimitives() {
 		next(i)
 	}
 
+	// end compiling a compound word, immediate word
+	// write the cfa of ; in the dictionnary.
+	w = i.addPrimitive(";")
+	w.immediate = true
+	w.inter = func(it *Interpreter) {
+		if it.compileMode { // immediate, during compilation
+			// write cfa
+			fmt.Printf("DEBUG : compiling cfa of ; as %d - %+v\n", w.cfa, w)
+			it.mem = append(it.mem, w.cfa)
+			// shift back to interpret mode
+			fmt.Println("DEBUG : Switching to interpret mode")
+			it.compileMode = false
+			it.ip = 0
+			return // done !
+		}
+		// normal interpretation in compound word
+		// pop return address
+		if it.rs.empty() {
+			it.ip = 0
+			return
+		}
+		it.ip, it.Err = it.rs.pop()
+		if it.Err != nil {
+			it.ip = 0
+			return // done
+		}
+	}
+
+	// start compiling a compound word
+	// do not write the cfa of : in the dictionnary.
+	w = i.addPrimitive(":")
+	w.inter = func(i *Interpreter) {
+		token := i.getNextString()
+		if i.Err != nil {
+			return
+		}
+		// create header
+		i.createHeader(token)
+		// switch to compile mode
+		// fmt.Println("Switching to compile mode")
+		i.compileMode = true
+		next(i)
+	}
+
 	// ( -- ) forget <word> : forget the specified word
 	// and all the following content, whatever the vocabulary.
 	w = i.addPrimitive("forget")
 	w.inter = func(i *Interpreter) {
-
 		token := i.getNextString()
 		if i.Err != nil {
 			return
@@ -379,48 +409,19 @@ func (i *Interpreter) initPrimitives() {
 		next(i)
 	}
 
-	// start compiling a compound word
-	// do not write the cfa of : in the dictionnary.
-	w = i.addPrimitive(":")
+	// ( n1 n2  -- n1 n2 n1) over the stack
+	w = i.addPrimitive("over")
 	w.inter = func(i *Interpreter) {
-		token := i.getNextString()
+		var n1, n2 int
+		n2, _ = i.ds.pop()
+		n1, i.Err = i.ds.pop()
 		if i.Err != nil {
 			return
 		}
-		// create header
-		i.createHeader(token)
-		// switch to compile mode
-		// fmt.Println("Switching to compile mode")
-		i.compileMode = true
+		i.Err = i.ds.push(n1, n2, n1)
 		next(i)
 	}
 
-	// end compiling a compound word, immediate word
-	// write the cfa of ; in the dictionnary.
-	w = i.addPrimitive(";")
-	w.immediate = true
-	w.inter = func(i *Interpreter) {
-		if i.compileMode { // immediate, during compilation
-			// write cfa
-			i.mem = append(i.mem, w.cfa)
-			// shift back to interpret mode
-			fmt.Println("DEBUG : Switching to interpret mode")
-			i.compileMode = false
-			i.ip = 0
-		}
-		// normal interpretation in compound word
-		// pop return address
-		if i.rs.empty() {
-			i.ip = 0
-			return
-		}
-		i.ip, i.Err = i.rs.pop()
-		if i.Err != nil {
-			i.ip = 0
-			return // done
-		}
-
-	}
 	/*
 		// ( -- n) go get the number that follows and put it on stack
 		w = i.addPrimitive("literal")

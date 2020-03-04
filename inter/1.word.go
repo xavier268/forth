@@ -6,9 +6,12 @@ type word struct {
 	name      string
 	immediate bool
 	smudge    bool
-	compil    func(i *Interpreter)
-	inter     func(i *Interpreter)
-	nfa, cfa  int
+	// TODO
+	// store the functons in an array indexed on cfa ?
+	// avoid defining functions with interpreter parameter ?
+	compil   func(i *Interpreter)
+	inter    func(i *Interpreter)
+	nfa, cfa int
 }
 
 // createHeader creates a new header in dictionnary.

@@ -57,76 +57,79 @@ func (i *Interpreter) Run() {
 
 	for !i.terminate && i.Err == nil {
 
+		// === read and process next token
+		i.ip = 0
 		st := i.getNextToken()
-		//fmt.Printf("DEBUG : just read token : %+v\n", st)
-
+		fmt.Printf("DEBUG : just read token : %+v\n", st)
 		if i.terminate || i.Err != nil || st.t == errorT {
 			if i.Err == nil {
 				i.Err = st.err
 			}
-			break
+			return // back to repl or finished, no more token
 		}
 
-		for i.Err == nil { // inner loop, processing inter/compil
-
-			fmt.Printf("DEBUG : inner loop, st = %+v\n", st)
-
-			switch st.t {
-			case errorT:
-				i.Err = st.err
-				return
-			case numberT:
-				if i.compileMode {
-					cfalit := 1 + i.lookupPrimitive("literal")
-					i.mem = append(i.mem, cfalit, st.v)
-					i.ip = 0
-				} else {
-					i.ds.push(st.v)
-					i.ip = 0
-				}
-			case primitiveT, compoundT:
-				w := i.words[st.v-1] // read word is indexed on NFA, but st contains CFA !!
-				fmt.Printf("DEBUG : about to eval %+v\n", w)
-				i.ip = w.cfa
-				i.eval(w)
-			default:
-				panic("invalid state in Run-switch")
+		// === handle numbers
+		if st.t == numberT {
+			if i.compileMode { // compile
+				cfalit := 1 + i.lookupPrimitive("literal")
+				i.mem = append(i.mem, cfalit, st.v)
+				i.ip = 0
+				continue // getNextToken
+			} else { // interpret
+				i.ds.push(st.v)
+				i.ip = 0
+				continue // getNextToken
 			}
+		}
 
-			if i.ip == 0 {
-				break // out of inner loop, so read another token
+		// === handle primitives,
+		if st.t == primitiveT {
+			w := i.words[st.v-1] // read word is indexed on NFA, but st contains CFA !!
+			fmt.Printf("DEBUG : about to eval primitive %+v\n", w)
+			// set ip to the primitive cfa value
+			i.ip = w.cfa
+			if i.compileMode && !w.immediate {
+				w.compil(i)
+			} else {
+				w.inter(i)
 			}
+			continue // getNextToken
+		}
 
+		// handle compound or primitive - only now is ip significant
+		if st.t == compoundT {
+			i.ip = st.v // cfa to be executed
+			i.eval()
 		}
 	}
-
 	if i.Err == io.EOF {
 		// ignore EOF when returning from Run
 		i.Err = nil
 	}
-
 }
 
-// process one step of the interpreter
-func (i *Interpreter) eval(w *word) {
+// navigate the interpreter, using ip and rs
+// it is up to the primitives to update ip and rs
+// ip is set on entrance
+func (i *Interpreter) eval() {
 
-	fmt.Printf("DEBUG: evaluating : %+v\n", w)
+	for i.ip != 0 && i.Err == nil {
 
-	if w == nil {
-		panic("invalid state - nil word to eval")
-	}
-	if i.isPrimitive(w) { // primitive
-		if i.compileMode && !w.immediate {
-			w.compil(i)
-		} else {
-			w.inter(i)
-		}
-	} else { // compound word
-		if i.compileMode && !w.immediate {
-			i.mem = append(i.mem, w.cfa)
-		} else {
-			i.rs.push(i.ip + 1)
-			i.ip = i.mem[i.ip]
+		fmt.Printf("DEBUG: evaluating ip : %d -> %d\n", i.ip, i.mem[i.ip])
+
+		// dereference and push rs
+		i.rs.push(i.ip + 1)
+		i.ip = i.mem[i.ip]
+
+		// handle primitives, they need to manage rs and ip
+		// default is to increment ip and to touch rs
+		if i.ip <= 1+i.lastPrimitiveNfa {
+			w := i.words[i.ip-1]
+			if i.compileMode && !w.immediate {
+				w.compil(i)
+			} else {
+				w.inter(i)
+			}
 		}
 	}
 }
