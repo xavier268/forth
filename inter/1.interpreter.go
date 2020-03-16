@@ -66,9 +66,6 @@ func (i *Interpreter) Run() {
 		st := i.getNextToken()
 		fmt.Printf("DEBUG : just read token : %+v\n", st)
 		if i.terminate || i.Err != nil || st.t == errorT {
-			if i.Err == nil {
-				i.Err = st.err
-			}
 			return // back to repl or finished, no more token
 		}
 

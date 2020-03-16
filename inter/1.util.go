@@ -50,7 +50,7 @@ func (i *Interpreter) getNextString() string {
 	return i.scanner.Text()
 }
 
-// get next token, is a usable form
+// get next token, in a usable format
 func (i *Interpreter) getNextToken() scanResult {
 
 	var r scanResult
@@ -79,7 +79,7 @@ func (i *Interpreter) getNextToken() scanResult {
 				r.t = errorT
 				return r
 			}
-			r.token += i.scanner.Text()
+			r.token = i.scanner.Text()
 		}
 		// load new non-comment token
 		if !i.scanner.Scan() {
@@ -92,19 +92,22 @@ func (i *Interpreter) getNextToken() scanResult {
 		r.token = i.scanner.Text()
 	}
 
-	// test EOF
-	if i.Err == io.EOF {
-		r.err = io.EOF
-		r.t = errorT
+	// try to decode token
+	nfa := i.lookup(r.token)
+	if i.Err == nil {
+		r.v = 1 + nfa
+		r.t = compoundT
+		r.err = nil
 		return r
 	}
 
-	// not found !
-	// reset token not found error
+	// so, token could not be decoded
+	// reset error and try numbers ...
 	i.Err = nil
 	if num, err := strconv.ParseInt(r.token, i.getBase(), 64); err == nil {
 		r.v = int(num)
 		r.t = numberT
+		r.err = nil
 		return r
 	}
 
