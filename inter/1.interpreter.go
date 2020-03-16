@@ -84,8 +84,8 @@ func (i *Interpreter) Run() {
 		// handle compound - only now is ip significant
 		if st.t == compoundT {
 			switch {
-			case !i.compileMode, // normal interpretation
-				i.words[st.v-1].immediate && i.compileMode: // or immediate
+			case !i.compileMode || // normal interpretation
+				i.words[st.v-1].immediate: // or immediate
 				i.ip = st.v
 				i.eval()
 			case i.compileMode:
@@ -110,21 +110,20 @@ func (i *Interpreter) eval() {
 
 		fmt.Printf("DEBUG: evaluating ip : %d -> %d\n", i.ip, i.mem[i.ip])
 
-		cfa := i.mem[i.ip]
 		// if pointing to pseudo code, we have a primitive !
-		if cfa < 0 {
+		if i.mem[i.ip] < 0 {
 			// execute primitive code !
-			i.code.do(i, cfa)
+			i.code.do(i, i.mem[i.ip])
+			i.ip++
 		} else {
 			//  compound,
 			// dereference and push rs
 			i.rs.push(i.ip + 1)
-			i.ip = cfa
+			i.ip = i.mem[i.ip]
 		}
 	}
 }
 
-/
 /*
 // Eval evaluates token.
 func (i *Interpreter) Eval(token string) {

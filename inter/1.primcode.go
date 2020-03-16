@@ -36,6 +36,7 @@ func (p *PrimCode) addCompil(pseudocfa int, compil func(i *Interpreter)) *PrimCo
 	if pseudocfa >= 0 {
 		panic("pseudo cfa are expcetd to be strictly negative, you provided " + fmt.Sprint(pseudocfa))
 	}
+	fmt.Println("DEBUG : adding compile code for ", pseudocfa)
 	p.compil[pseudocfa] = compil
 	return p
 }
