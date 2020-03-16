@@ -71,19 +71,17 @@ func (i *Interpreter) Run() {
 
 		// === handle numbers
 		if st.t == numberT {
-			if i.compileMode { // compile
+			if i.compileMode { // compile number
 				cfalit := 1 + i.lookup("literal")
 				i.mem = append(i.mem, cfalit, st.v)
-				i.ip = 0
 				continue // getNextToken
-			} else { // interpret
+			} else { // interpret number
 				i.ds.push(st.v)
-				i.ip = 0
 				continue // getNextToken
 			}
 		}
 
-		// handle compound or primitive - only now is ip significant
+		// handle compound - only now is ip significant
 		if st.t == compoundT {
 			i.ip = st.v // cfa to be executed
 			i.eval()
@@ -97,27 +95,24 @@ func (i *Interpreter) Run() {
 
 // navigate the interpreter, using ip and rs
 // it is up to the primitives to update ip and rs
-// ip is set on entrance
+// ip is set on entrance. Is normally never called with ip = 0.
 func (i *Interpreter) eval() {
 
 	for i.ip != 0 && i.Err == nil {
 
 		fmt.Printf("DEBUG: evaluating ip : %d -> %d\n", i.ip, i.mem[i.ip])
 
-		// dereference and push rs
-		i.rs.push(i.ip + 1)
-		i.ip = i.mem[i.ip]
-
-		// handle primitives, they need to manage rs and ip: test
-		// default is to increment ip and to touch rs
-		// if i.ip <= 1+i.lastPrimitiveNfa {
-		// 	w := i.words[i.ip-1]
-		// 	if i.compileMode && !w.immediate {
-		// 		w.compil()
-		// 	} else {
-		// 		w.inter()
-		// 	}
-		// }
+		cfa := i.mem[i.ip]
+		// if pointing to pseudo code, we have a primitive !
+		if cfa < 0 {
+			// executre primitive code !
+			i.code.do(i, cfa)
+		} else {
+			//  compound,
+			// dereference and push rs
+			i.rs.push(i.ip + 1)
+			i.ip = cfa
+		}
 	}
 }
 
