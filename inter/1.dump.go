@@ -32,8 +32,8 @@ func (i *Interpreter) dump() {
 		if k%5 == 0 {
 			fmt.Printf("\n%5d --: ", k)
 		}
-		if k == i.ip {
-			fmt.Printf("%s%5d%s ", ColorGreen, v, ColorOff)
+		if v < 0 {
+			fmt.Printf("%s%5d%s ", ColorRed, v, ColorOff)
 		} else {
 			fmt.Printf("%5d ", v)
 		}

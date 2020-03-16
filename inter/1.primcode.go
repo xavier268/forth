@@ -40,7 +40,7 @@ func (p *PrimCode) addCompil(pseudocfa int, compil func(i *Interpreter)) *PrimCo
 	return p
 }
 
-// Execute the code, base on the compil mode of the interpreter
+// Execute the primitive code
 func (p *PrimCode) do(i *Interpreter, pcfa int) {
 	if i.compileMode {
 		f := p.compil[pcfa]
