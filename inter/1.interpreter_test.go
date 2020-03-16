@@ -19,7 +19,7 @@ func TestNewInterpreter(t *testing.T) {
 	}
 }
 func TestCompoundWord(t *testing.T) {
-	f(t, " : test . . ; ", "")
+	f(t, " : test . . ; info ", "")
 	//f(t, " : test . . ; 1000 2000 test ", " 2000 1000")
 }
 func TestPrint(t *testing.T) {

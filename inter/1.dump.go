@@ -42,7 +42,6 @@ func (i *Interpreter) dump() {
 
 	fmt.Println("IP           : ", i.ip)
 	fmt.Println("LastNFA      : ", i.lastNfa)
-	fmt.Println("LastNFA prim : ", i.lastPrimitiveNfa)
 	fmt.Println("Compile      : ", i.compileMode)
 	fmt.Println("DS           : ", i.ds.data)
 	fmt.Println("RS           : ", i.rs.data)

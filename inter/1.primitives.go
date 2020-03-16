@@ -5,118 +5,118 @@ import (
 	"strconv"
 )
 
-// addPrimitive creates and initiates the corresponding primitives.
-func (i *Interpreter) addPrimitive(name string) *word {
+// addPrimitive creates and initiates a word
+// for the corresponding primitives.
+func (i *Interpreter) addPrimitive(name string) (pcode int) {
+
 	// create the words and link them
 	w := i.createHeader(name)
-	i.lastPrimitiveNfa = i.lastNfa
-	w.compil =
-		// implements defaults compile behaviour
-		func() {
-			i := i
-			fmt.Println("DEBUG : default compilation of ", i.ip)
-			i.mem = append(i.mem, i.ip)
-			i.ip = 0
-		}
-	w.inter =
-		// implements default (NOOP) intrepreter behaviour
-		func() {
-			i := i
-			fmt.Println("DEBUG : default (noop) primitive with cfa = ", i.ip)
-			i.ip = 0
-		}
-	return w
+	// create a pcode from the nfa,
+	// compile the pseudo code in the cfa
+	pcode = -w.nfa
+	i.mem = append(i.mem, pcode)
+	return pcode
+}
+
+// add an immediate primitive
+func (i *Interpreter) addPrimitiveImmediate(name string) (pcode int) {
+	// create the words and link them
+	w := i.createHeader(name)
+	// make it immediate
+	w.immediate = true
+	// create a pcode from the nfa,
+	// compile the pseudo code in the cfa
+	pcode = -w.nfa
+	i.mem = append(i.mem, pcode)
+	return pcode
+}
+
+// default move of the ip pointer at the end of a primitive
+func (i *Interpreter) moveIP() {
+	// if interpret and non empty rs, increment ip
+	if i.ip != 0 && !i.compileMode && !i.rs.empty() {
+		i.ip++
+		return
+	}
+	i.ip = 0
 }
 
 // define implementation for all primitives.
 func (i *Interpreter) initPrimitives() {
 
-	// default finishing function
-	// normally, ip=0, and read one more token,
-	next := func() {
-		i := i
-		// if interpret and non empty rs, increment ip
-		if i.ip != 0 && !i.compileMode && !i.rs.empty() {
-			i.ip++
-			return
-		}
-		i.ip = 0
-	}
-
-	var w *word
+	var pcfa int
 
 	// bye will terminate the session, exit the repl.
-	w = i.addPrimitive("bye")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("bye")
+	i.code.addInter(pcfa, func(i *Interpreter) {
 		i.terminate = true
 		i.Err = fmt.Errorf("requested termination")
-		next()
-	}
+		i.moveIP()
+	})
 
 	// noop will terminate the session, exit the repl.
-	w = i.addPrimitive("noop")
+	i.addPrimitive("noop")
 
 	// info will print a dump output
-	w = i.addPrimitive("info")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("info")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		i.dump()
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( a b -- a+b)
-	w = i.addPrimitive("+")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("+")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var a, b int
 		a, _ = i.ds.pop()
 		b, i.Err = i.ds.pop()
 		i.ds.push(a + b)
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( a b -- a-b)
-	w = i.addPrimitive("-")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("-")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var a, b int
 		a, _ = i.ds.pop()
 		b, i.Err = i.ds.pop()
 		i.ds.push(b - a)
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( a b -- a*b)
-	w = i.addPrimitive("*")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("*")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var a, b int
 		a, _ = i.ds.pop()
 		b, i.Err = i.ds.pop()
 		i.ds.push(a * b)
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( n -- ) dot, print ds
-	w = i.addPrimitive(".")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive(".")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var n int
 		n, i.Err = i.ds.pop()
 		if i.Err != nil {
 			return
 		}
 		fmt.Fprintf(i.writer, " %s", strconv.FormatInt(int64(n), i.getBase()))
-		next()
-	}
+		i.moveIP()
+	})
 
 	// output following texts until a " word is met,
 	// The end of string is marked with a ", even without white spaces.
 	// There MUST be a white space after the FIRST "
-	w = i.addPrimitive(".\"")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive(".\"")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		if i.rs.empty() { // interpreting from repl
 			// get the string from the input stream
 			token := i.getNextString()
@@ -130,100 +130,99 @@ func (i *Interpreter) initPrimitives() {
 				fmt.Fprintf(i.writer, "%s", string(rune(i.mem[k])))
 			}
 		}
-		next()
-	}
+		i.moveIP()
+	})
 	// in compile mode, will write the cfa, length and string
 	// in the dictionnary
-	w.compil = func() {
-		i := i
-		fmt.Printf("DEBUG : Cmode: %v, word: %+v\n", i.compileMode, w)
+	i.code.addCompil(pcfa, func(i *Interpreter) {
+
+		fmt.Printf("DEBUG : Cmode: %v, word: %+v\n", i.compileMode, pcfa)
 		token := i.getNextString()
 		rtok := []rune(token) // group by rune
 		if i.Err != nil {
 			return
 		}
-		fmt.Printf("DEBUG : Cmode: %v, word: %+v\n", i.compileMode, w)
-		i.mem = append(i.mem, w.cfa, len(rtok))
+		fmt.Printf("DEBUG : Cmode: %v, word: %+v\n", i.compileMode, pcfa)
+		i.mem = append(i.mem, pcfa, len(rtok))
 		// store the token, rune by rune
 		for _, r := range rtok {
 			i.mem = append(i.mem, int(r))
 		}
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( -- addr) addr of the BASE user variable.
-	w = i.addPrimitive("base")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("base")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		i.Err = i.ds.push(UVBase)
-		next()
-	}
+		i.moveIP()
+	})
 
 	// enter into intrepretation mode, immediate word
-	w = i.addPrimitive("[")
-	w.immediate = true
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitiveImmediate("[")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		i.compileMode = false
-		next()
-	}
+		i.moveIP()
+	})
 
 	// enter into compil mode
-	w = i.addPrimitive("]")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("]")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		i.compileMode = true
-		next()
-	}
+		i.moveIP()
+	})
 
 	// make last word immediate
-	w = i.addPrimitive("immediate")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("immediate")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		i.words[i.lastNfa].immediate = true
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( n -- ) comma, add n in the dictionnary
-	w = i.addPrimitive(",")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive(",")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var n int
 		n, i.Err = i.ds.pop()
 		if i.Err != nil {
 			return
 		}
 		i.mem = append(i.mem, n)
-		next()
-	}
+		i.moveIP()
+	})
 
 	// (n -- ) reserve n cells in the dictionnary
 	// enter into intrepretation mode, immediate word
-	w = i.addPrimitive("allot")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("allot")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var n int
 		n, i.Err = i.ds.pop()
 		if i.Err != nil {
 			return
 		}
 		i.alloc(n)
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( -- addr ) get the address of the first availbale cell of the memory.
 	// CAUTION : the memory at 'here' and beyond is NOT ACCESSIBLE unless allocated.
-	w = i.addPrimitive("here")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("here")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		i.Err = i.ds.push(len(i.mem))
-		next()
-	}
+		i.moveIP()
+	})
 
 	// (n addr -- ) store n at the given address, assume memory is allocated
-	w = i.addPrimitive("!")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("!")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var n, a int
 		a, _ = i.ds.pop()
 		n, i.Err = i.ds.pop()
@@ -235,13 +234,13 @@ func (i *Interpreter) initPrimitives() {
 			return
 		}
 		i.mem[a] = n
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( addr -- n) get the value n at the address addr
-	w = i.addPrimitive("@")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("@")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var a int
 		a, i.Err = i.ds.pop()
 		if i.Err != nil {
@@ -252,55 +251,55 @@ func (i *Interpreter) initPrimitives() {
 			return
 		}
 		i.Err = i.ds.push(i.mem[a])
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( -- ) emit carriage return
-	w = i.addPrimitive("cr")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("cr")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		fmt.Fprintln(i.writer)
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( rune -- ) emit the provided rune
-	w = i.addPrimitive("emit")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("emit")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var n int
 		n, i.Err = i.ds.pop()
 		if i.Err != nil {
 			return
 		}
 		fmt.Fprintf(i.writer, "%s", string(rune(n)))
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( n -- ) drop to of stack
-	w = i.addPrimitive("drop")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("drop")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		_, i.Err = i.ds.pop()
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( n -- n n ) dup to of stack
-	w = i.addPrimitive("dup")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("dup")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var n int
 		n, i.Err = i.ds.pop()
 		if i.Err != nil {
 			return
 		}
 		i.Err = i.ds.push(n, n)
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( n1 n2 n3 -- n2 n3 n1) rotate the stack
-	w = i.addPrimitive("rot")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("rot")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var n1, n2, n3 int
 		n3, _ = i.ds.pop()
 		n2, _ = i.ds.pop()
@@ -309,13 +308,13 @@ func (i *Interpreter) initPrimitives() {
 			return
 		}
 		i.Err = i.ds.push(n2, n3, n1)
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( n1 n2  -- n2 n1) swap the stack
-	w = i.addPrimitive("swap")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("swap")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var n1, n2 int
 		n2, _ = i.ds.pop()
 		n1, i.Err = i.ds.pop()
@@ -323,58 +322,57 @@ func (i *Interpreter) initPrimitives() {
 			return
 		}
 		i.Err = i.ds.push(n2, n1)
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( -- r) pop rs into ds
-	w = i.addPrimitive("r>")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("r>")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var r int
 		r, i.Err = i.rs.pop()
 		if i.Err != nil {
 			return
 		}
 		i.Err = i.ds.push(r)
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( r -- ) push r into rs
-	w = i.addPrimitive(">r")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive(">r")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var r int
 		r, i.Err = i.ds.pop()
 		if i.Err != nil {
 			return
 		}
 		i.Err = i.rs.push(r)
-		next()
-	}
+		i.moveIP()
+	})
 
 	// (-- r) push top of rs to ds
-	w = i.addPrimitive("r@")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("r@")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var r int
 		r, i.Err = i.rs.top()
 		if i.Err != nil {
 			return
 		}
 		i.Err = i.ds.push(r)
-		next()
-	}
+		i.moveIP()
+	})
 
 	// end compiling a compound word, immediate word
-	// write the cfa of ; in the dictionnary.
-	w = i.addPrimitive(";")
-	w.immediate = true
-	w.inter = func() {
-		i := i
+	// write the pcfa of ; in the dictionnary.
+	pcfa = i.addPrimitiveImmediate(";")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		if i.compileMode { // immediate, during compilation
 			// write cfa
-			fmt.Printf("DEBUG : compiling cfa of ; as %d - %+v\n", w.cfa, w)
-			i.mem = append(i.mem, w.cfa)
+			fmt.Printf("DEBUG : compiling cfa of ; as %d - %+v\n", pcfa, pcfa)
+			i.mem = append(i.mem, pcfa)
 			// shift back to interpret mode
 			fmt.Println("DEBUG : Switching to interpret mode")
 			i.compileMode = false
@@ -392,13 +390,13 @@ func (i *Interpreter) initPrimitives() {
 			i.ip = 0
 			return // done
 		}
-	}
+	})
 
 	// start compiling a compound word
 	// do not write the cfa of : in the dictionnary.
-	w = i.addPrimitive(":")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive(":")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		token := i.getNextString()
 		if i.Err != nil {
 			return
@@ -408,14 +406,14 @@ func (i *Interpreter) initPrimitives() {
 		// switch to compile mode
 		// fmt.Println("Switching to compile mode")
 		i.compileMode = true
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( -- ) forget <word> : forget the specified word
 	// and all the following content, whatever the vocabulary.
-	w = i.addPrimitive("forget")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("forget")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		token := i.getNextString()
 		if i.Err != nil {
 			return
@@ -438,13 +436,13 @@ func (i *Interpreter) initPrimitives() {
 				delete(i.words, nfa2)
 			}
 		}
-		next()
-	}
+		i.moveIP()
+	})
 
 	// ( n1 n2  -- n1 n2 n1) over the stack
-	w = i.addPrimitive("over")
-	w.inter = func() {
-		i := i
+	pcfa = i.addPrimitive("over")
+	i.code.addInter(pcfa, func(i *Interpreter) {
+
 		var n1, n2 int
 		n2, _ = i.ds.pop()
 		n1, i.Err = i.ds.pop()
@@ -452,8 +450,8 @@ func (i *Interpreter) initPrimitives() {
 			return
 		}
 		i.Err = i.ds.push(n1, n2, n1)
-		next()
-	}
+		i.moveIP()
+	})
 
 	/*
 		// ( -- n) go get the number that follows and put it on stack

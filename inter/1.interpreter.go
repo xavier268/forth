@@ -30,8 +30,12 @@ type Interpreter struct {
 	// Err contains first interpreter error
 	Err error
 
-	// lastNfa, lastPrimitiveNfa
-	lastNfa, lastPrimitiveNfa int
+	// code for primitives is stored here.
+	code *PrimCode
+
+	// lastNfa
+	lastNfa int
+	// lastPrimitiveNfa int
 }
 
 // NewInterpreter constructor.
@@ -71,7 +75,7 @@ func (i *Interpreter) Run() {
 		// === handle numbers
 		if st.t == numberT {
 			if i.compileMode { // compile
-				cfalit := 1 + i.lookupPrimitive("literal")
+				cfalit := 1 + i.lookup("literal")
 				i.mem = append(i.mem, cfalit, st.v)
 				i.ip = 0
 				continue // getNextToken
@@ -80,20 +84,6 @@ func (i *Interpreter) Run() {
 				i.ip = 0
 				continue // getNextToken
 			}
-		}
-
-		// === handle primitives,
-		if st.t == primitiveT {
-			w := i.words[st.v-1] // read word is indexed on NFA, but st contains CFA !!
-			fmt.Printf("DEBUG : about to eval primitive %+v\n", w)
-			// set ip to the primitive cfa value
-			i.ip = w.cfa
-			if i.compileMode && !w.immediate {
-				w.compil()
-			} else {
-				w.inter()
-			}
-			continue // getNextToken
 		}
 
 		// handle compound or primitive - only now is ip significant
@@ -121,16 +111,16 @@ func (i *Interpreter) eval() {
 		i.rs.push(i.ip + 1)
 		i.ip = i.mem[i.ip]
 
-		// handle primitives, they need to manage rs and ip
+		// handle primitives, they need to manage rs and ip: test
 		// default is to increment ip and to touch rs
-		if i.ip <= 1+i.lastPrimitiveNfa {
-			w := i.words[i.ip-1]
-			if i.compileMode && !w.immediate {
-				w.compil()
-			} else {
-				w.inter()
-			}
-		}
+		// if i.ip <= 1+i.lastPrimitiveNfa {
+		// 	w := i.words[i.ip-1]
+		// 	if i.compileMode && !w.immediate {
+		// 		w.compil()
+		// 	} else {
+		// 		w.inter()
+		// 	}
+		// }
 	}
 }
 

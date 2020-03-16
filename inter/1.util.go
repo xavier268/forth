@@ -27,8 +27,7 @@ func (i *Interpreter) scanNextToken() string {
 */
 
 const (
-	primitiveT = iota
-	compoundT
+	compoundT = iota
 	numberT
 	errorT
 )
@@ -100,21 +99,6 @@ func (i *Interpreter) getNextToken() scanResult {
 		return r
 	}
 
-	// identify the nature of the token
-	cfa := 1 + i.lookup(r.token)
-	if i.Err == nil { //  found !
-		if cfa <= 1+i.lastPrimitiveNfa {
-			// primitive
-			r.v = cfa
-			r.t = primitiveT
-			return r
-		}
-		// not primitive
-		r.v = cfa
-		r.t = compoundT
-		return r
-
-	}
 	// not found !
 	// reset token not found error
 	i.Err = nil
@@ -129,4 +113,14 @@ func (i *Interpreter) getNextToken() scanResult {
 	r.err = fmt.Errorf("cannot understand the token : %s", r.token)
 	return r
 
+}
+
+// isPrimitive test using the fact that the cfa
+// contains a negative pseudo code.
+func (i *Interpreter) isPrimitive(w *word) bool {
+
+	if w == nil {
+		return false
+	}
+	return i.mem[w.cfa] < 0
 }

@@ -6,12 +6,7 @@ type word struct {
 	name      string
 	immediate bool
 	smudge    bool
-	// TODO
-	// store the functons in an array indexed on cfa ?
-	// avoid defining functions with interpreter parameter ?
-	compil   func()
-	inter    func()
-	nfa, cfa int
+	nfa, cfa  int
 }
 
 // createHeader creates a new header in dictionnary.
@@ -20,7 +15,7 @@ type word struct {
 func (i *Interpreter) createHeader(token string) *word {
 	nfa := len(i.mem)
 	i.mem = append(i.mem, i.lastNfa)
-	w := &word{token, false, false, nil, nil, nfa, nfa + 1}
+	w := &word{token, false, false, nfa, nfa + 1}
 	i.words[nfa] = w
 	i.lastNfa = nfa
 	return w
@@ -29,11 +24,6 @@ func (i *Interpreter) createHeader(token string) *word {
 // lookup most recent token in dictionnary, using the chain of lfa.
 func (i *Interpreter) lookup(token string) (nfa int) {
 	return i.lookupFrom(i.lastNfa, token)
-}
-
-// lookup only among primitives
-func (i *Interpreter) lookupPrimitive(token string) (nfa int) {
-	return i.lookupFrom(i.lastPrimitiveNfa, token)
 }
 
 // lookup from the lastnfa provided.
@@ -56,9 +46,4 @@ func (i *Interpreter) lookupFrom(lastnfa int, token string) (nfa int) {
 	}
 	i.Err = fmt.Errorf("this token is unknown : %s", token)
 	return 0
-}
-
-// is the provided word a primitive ?
-func (i *Interpreter) isPrimitive(w *word) bool {
-	return w.nfa <= i.lastPrimitiveNfa
 }
