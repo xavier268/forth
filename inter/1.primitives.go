@@ -45,6 +45,15 @@ func (i *Interpreter) moveIP() {
 func (i *Interpreter) initPrimitives() {
 
 	var pcfa int
+	i.code = NewPrimCode(
+		func(ii *Interpreter) {
+			fmt.Println("DEBUG : Calling default interpret primitive")
+			i.moveIP()
+		},
+		func(i2 *Interpreter) {
+			fmt.Println("DEBUG : Calling default compile primitive")
+			i.moveIP()
+		})
 
 	// bye will terminate the session, exit the repl.
 	pcfa = i.addPrimitive("bye")
