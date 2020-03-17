@@ -114,7 +114,9 @@ func (i *Interpreter) eval() {
 		if i.mem[i.ip] < 0 {
 			// execute primitive code !
 			i.code.do(i, i.mem[i.ip])
-			i.ip++
+			if i.ip != 0 {
+				i.ip++
+			}
 		} else {
 			//  compound,
 			// dereference and push rs

@@ -14,7 +14,8 @@ func (i *Interpreter) addPrimitive(name string) (pcode int) {
 	// create a pcode from the nfa,
 	// compile the pseudo code in the cfa
 	pcode = -w.nfa
-	i.mem = append(i.mem, pcode)
+	colon := -i.lookup(";")
+	i.mem = append(i.mem, pcode, colon)
 	return pcode
 }
 
@@ -27,7 +28,8 @@ func (i *Interpreter) addPrimitiveImmediate(name string) (pcode int) {
 	// create a pcode from the nfa,
 	// compile the pseudo code in the cfa
 	pcode = -w.nfa
-	i.mem = append(i.mem, pcode)
+	colon := -i.lookup(";")
+	i.mem = append(i.mem, pcode, colon)
 	return pcode
 }
 
@@ -35,15 +37,7 @@ func (i *Interpreter) addPrimitiveImmediate(name string) (pcode int) {
 // default move of the ip pointer at the end of a primitive
 // primitive code is NEVER called directly, always as part of eval.
 func (i *Interpreter) moveIP() {
-	if i.rs.empty() && i.ip != 0 {
-		//i.ip++
-		return
-	}
-	if i.ip == 0 {
-		return
-	}
-	i.ip, _ = i.rs.pop()
-
+	// do nothing ?
 }
 
 // define implementation for all primitives.
@@ -59,15 +53,41 @@ func (i *Interpreter) initPrimitives() {
 			i.moveIP()
 		})
 
-	// bye will terminate the session, exit the repl.
+	// end compiling a compound word, immediate word
+	// write the pcfa of ; in the dictionnary.
+	// needs to be defined early, it is used even for primitives.
+	{
+		pcfa := i.addPrimitiveImmediate(";")
+		i.code.addInter(pcfa, func(i *Interpreter) {
+			// normal interpretation in compound word
+			// pop return address, leaving 0 if stack is empty.
+			i.ip, i.Err = i.rs.pop()
+			if i.Err != nil {
+				i.Err = nil
+				i.ip = 0
+			}
+		})
+		i.code.addCompil(pcfa, func(i *Interpreter) {
+			// immediate, during compilation
+			// write cfa
+			fmt.Printf("DEBUG : compiling cfa of ; as %d \n", pcfa)
+			i.mem = append(i.mem, pcfa)
+			// shift back to interpret mode
+			fmt.Println("DEBUG : Switching to interpret mode")
+			i.compileMode = false
+			i.ip = 0 // to ask for a new token ...
+			return   // done !
+		})
+	}
 
+	// bye will terminate the session, exit the repl.
 	i.code.addInter(i.addPrimitive("bye"), func(i *Interpreter) {
 		i.terminate = true
 		i.Err = fmt.Errorf("requested termination")
 		i.moveIP()
 	})
 
-	// noop will terminate the session, exit the repl.
+	// noop does nothing.
 	i.addPrimitive("noop")
 
 	// info will print a dump output
@@ -333,32 +353,6 @@ func (i *Interpreter) initPrimitives() {
 		i.moveIP()
 	})
 
-	// end compiling a compound word, immediate word
-	// write the pcfa of ; in the dictionnary.
-	{
-		pcfa := i.addPrimitiveImmediate(";")
-		i.code.addInter(pcfa, func(i *Interpreter) {
-			// normal interpretation in compound word
-			// pop return address
-			i.ip, i.Err = i.rs.pop()
-			if i.Err != nil {
-				i.ip = 0
-				return // done
-			}
-		})
-		i.code.addCompil(pcfa, func(i *Interpreter) {
-			// immediate, during compilation
-			// write cfa
-			fmt.Printf("DEBUG : compiling cfa of ; as %d \n", pcfa)
-			i.mem = append(i.mem, pcfa)
-			// shift back to interpret mode
-			fmt.Println("DEBUG : Switching to interpret mode")
-			i.compileMode = false
-			i.ip = 0 // to ask for a new token ...
-			return   // done !
-		})
-	}
-
 	// start compiling a compound word
 	// do not write the cfa of : in the dictionnary.
 	i.code.addInter(i.addPrimitive(":"), func(i *Interpreter) {
@@ -369,8 +363,9 @@ func (i *Interpreter) initPrimitives() {
 		// create header
 		i.createHeader(token)
 		// switch to compile mode
-		// fmt.Println("Switching to compile mode")
+		fmt.Println("Switching to compile mode")
 		i.compileMode = true
+		i.ip = 0
 		i.moveIP()
 	})
 

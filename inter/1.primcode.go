@@ -34,7 +34,7 @@ func (p *PrimCode) addInter(pseudocfa int, inter func(i *Interpreter)) *PrimCode
 // addCompil adds code for compil mode of the provided pseudoCFA.
 func (p *PrimCode) addCompil(pseudocfa int, compil func(i *Interpreter)) *PrimCode {
 	if pseudocfa >= 0 {
-		panic("pseudo cfa are expcetd to be strictly negative, you provided " + fmt.Sprint(pseudocfa))
+		panic("pseudo cfa are expected to be strictly negative, you provided " + fmt.Sprint(pseudocfa))
 	}
 	fmt.Println("DEBUG : adding compile code for ", pseudocfa)
 	p.compil[pseudocfa] = compil
