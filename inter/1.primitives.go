@@ -62,7 +62,8 @@ func (i *Interpreter) initPrimitives() {
 			// normal interpretation in compound word
 			// pop return address, leaving 0 if stack is empty.
 			i.ip, i.Err = i.rs.pop()
-			if i.Err != nil {
+			// reset on error OR if rs is empty
+			if i.Err != nil || i.rs.empty() {
 				i.Err = nil
 				i.ip = 0
 			}
@@ -410,10 +411,11 @@ func (i *Interpreter) initPrimitives() {
 	// ( -- n) go get the number that follows and put it on stack
 	i.code.addInter(i.addPrimitive("literal"),
 		func(i *Interpreter) {
-			// the number is in the next cell
+			// the number is in the cell pointed by the rs stack
 			// get it, and skip it
-			i.ds.push(i.mem[i.ip+1])
-			i.ip += 2
+			daddr, _ := i.rs.pop()
+			i.ds.push(i.mem[daddr])
+			i.rs.push(daddr + 1)
 			i.moveIP()
 		})
 

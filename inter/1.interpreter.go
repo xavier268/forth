@@ -94,8 +94,8 @@ func (i *Interpreter) Run() {
 			}
 		}
 	}
+	// ignore EOF when returning from Run
 	if i.Err == io.EOF {
-		// ignore EOF when returning from Run
 		i.Err = nil
 	}
 }
