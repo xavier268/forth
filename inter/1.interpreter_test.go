@@ -19,8 +19,15 @@ func TestNewInterpreter(t *testing.T) {
 	}
 }
 func TestCompoundWord(t *testing.T) {
-	f(t, " : test . . ; info ", "")
-	//f(t, " : test . . ; 1000 2000 test ", " 2000 1000")
+	f(t, " : test 333 +  ; 555 test . ", " 888")
+
+	f(t, " 1 2 + . ", " 3")
+	f(t, " : test 111 ; test  . ", " 111")
+	f(t, " : test 111 222  ; test . . ", " 222 111")
+
+	f(t, " : test 333  . ;  test  ", " 333")
+	f(t, " : test 333  + . ;  222 test  ", " 555")
+
 }
 func TestPrint(t *testing.T) {
 

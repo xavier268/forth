@@ -33,11 +33,12 @@ func (i *Interpreter) addPrimitiveImmediate(name string) (pcode int) {
 	return pcode
 }
 
-// TODO : buggy rs stack management
 // default move of the ip pointer at the end of a primitive
 // primitive code is NEVER called directly, always as part of eval.
 func (i *Interpreter) moveIP() {
-	// do nothing ?
+	if i.ip != 0 {
+		i.ip++
+	}
 }
 
 // define implementation for all primitives.
@@ -63,7 +64,7 @@ func (i *Interpreter) initPrimitives() {
 			// pop return address, leaving 0 if stack is empty.
 			i.ip, i.Err = i.rs.pop()
 			// reset on error OR if rs is empty
-			if i.Err != nil || i.rs.empty() {
+			if i.Err != nil {
 				i.Err = nil
 				i.ip = 0
 			}
@@ -80,6 +81,16 @@ func (i *Interpreter) initPrimitives() {
 			return   // done !
 		})
 	}
+
+	// ( -- n) go get the number that follows and put it on stack
+	i.code.addInter(i.addPrimitive("literal"),
+		func(i *Interpreter) {
+			// the number is in the ip+1 cell
+			// get it, and skip it
+			i.ip++
+			i.ds.push(i.mem[i.ip])
+			i.moveIP()
+		})
 
 	// bye will terminate the session, exit the repl.
 	i.code.addInter(i.addPrimitive("bye"), func(i *Interpreter) {
@@ -407,16 +418,5 @@ func (i *Interpreter) initPrimitives() {
 		i.Err = i.ds.push(n1, n2, n1)
 		i.moveIP()
 	})
-
-	// ( -- n) go get the number that follows and put it on stack
-	i.code.addInter(i.addPrimitive("literal"),
-		func(i *Interpreter) {
-			// the number is in the cell pointed by the rs stack
-			// get it, and skip it
-			daddr, _ := i.rs.pop()
-			i.ds.push(i.mem[daddr])
-			i.rs.push(daddr + 1)
-			i.moveIP()
-		})
 
 }

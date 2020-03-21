@@ -65,14 +65,18 @@ func (i *Interpreter) Run() {
 		i.ip = 0
 		st := i.getNextToken()
 		fmt.Printf("DEBUG : just read token : %+v\n", st)
-		if i.terminate || i.Err != nil || st.t == errorT {
-			return // back to repl or finished, no more token
+		if st.t == errorT {
+			i.Err = st.err
+			continue // back to repl or finished, no more token
+		}
+		if i.terminate || i.Err != nil {
+			continue // // back to repl or finished, no more token
 		}
 
 		// === handle numbers
 		if st.t == numberT {
 			if i.compileMode { // compile number
-				cfalit := 1 + i.lookup("literal")
+				cfalit := -i.lookup("literal")
 				i.mem = append(i.mem, cfalit, st.v)
 				continue // getNextToken
 			} else { // interpret number
@@ -114,9 +118,6 @@ func (i *Interpreter) eval() {
 		if i.mem[i.ip] < 0 {
 			// execute primitive code !
 			i.code.do(i, i.mem[i.ip])
-			if i.ip != 0 {
-				i.ip++
-			}
 		} else {
 			//  compound,
 			// dereference and push rs
