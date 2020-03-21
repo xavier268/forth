@@ -19,7 +19,6 @@ type Interpreter struct {
 	// where the dictionnary lives
 	mem []int
 	// map NFA to the string details and flags,
-	// including implementations details for primitives
 	words map[int]*word
 	// CompileMode (or interpret) mode ?
 	compileMode bool

@@ -16,14 +16,17 @@ func TestLookupToken(t *testing.T) {
 	i := NewInterpreter()
 
 	//i.dump()
-
 	s = "+"
 	nfa = i.lookup(s)
 	if i.Err != nil {
 		t.Fatal(s, "==>", nfa, err)
 	}
 	// last word
-	s = i.words[len(i.words)-1].name
+	w, ok := i.words[i.lastNfa]
+	if !ok {
+		t.Fatalf("Words : %v\nlen(words) = %d\nLast word did not exist", i.words, len(i.words))
+	}
+	s = w.name
 	nfa = i.lookup(s)
 	if i.Err != nil {
 		t.Fatal(s, "==>", nfa, err)

@@ -13,6 +13,9 @@ type word struct {
 // updating words, lastNfa.
 // return the created object that was added to the words map.
 func (i *Interpreter) createHeader(token string) *word {
+	if len(token) == 0 {
+		panic(fmt.Sprintf("Tryng to create an empty header , token = %+v", token))
+	}
 	nfa := len(i.mem)
 	i.mem = append(i.mem, i.lastNfa)
 	w := &word{token, false, false, nfa, nfa + 1}
