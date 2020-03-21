@@ -29,7 +29,7 @@ func TestCompoundWord(t *testing.T) {
 	f(t, " : test 333  + . ;  222 test  ", " 555")
 
 }
-func TestPrint(t *testing.T) {
+func TestPrint1(t *testing.T) {
 
 	// use at repl level
 	f(t, ` ." hello world " `, "hello world ")
@@ -39,11 +39,16 @@ func TestPrint(t *testing.T) {
 
 	f(t, " 3564 emit ", "෬")
 
-	t.Skip()
-
 	// use inside a definition !
 	f(t, ": t .\" hello world\" ;  1 . t", " 1hello world")
 	f(t, ": t .\" hello world\" ;   t 1 . ", "hello world 1")
+	f(t, ": t 1 .\" hello world\" ;   t  . ", "hello world 1")
+	f(t, ": t 1 .\" hello world\" ;   . t  ", "", "data stack underflow")
+
+}
+func TestPrint2(t *testing.T) {
+	// BUGGY ? TO DO - fix ??
+	f(t, ": t   .\" aaaa\"  .\" bb\" ;  t   ", "aaaabb")
 
 }
 
@@ -162,8 +167,6 @@ func TestComment(t *testing.T) {
 	f(t, "2 ( ; kjhkjh ) 3 . ", " 3")
 	f(t, "2 3 ( 33 ) 4 . + .", " 4 5")
 
-	t.Skip()
-
 	f(t, ": plus + ( ; <- immediate word have no effect ) . ; "+
 		": plusplus plus plus ; "+
 		"1 2 3 4 plusplus",
@@ -194,8 +197,6 @@ func TestNoop(t *testing.T) {
 	f(t, "2 3 + noop . ", " 5")
 	f(t, "2 noop 3 . ", " 3")
 	f(t, "noop 2 3 4 . + .", " 4 5")
-
-	t.Skip()
 
 	f(t, ": toto noop ; toto", "")
 	f(t, ": plus noop + ; 3 7 plus .", " 10")

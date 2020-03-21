@@ -11,6 +11,7 @@ func TestGetNextString(t *testing.T) {
 	ns(t, "a         b", "a", "b")
 	ns(t, "   a         b", "a", "b")
 	ns(t, "   a         b ", "a", "b")
+	ns(t, ` ." hello" ." world" `, ".\"", "hello", ".\"", "world")
 }
 
 func TestGetNextToken(t *testing.T) {

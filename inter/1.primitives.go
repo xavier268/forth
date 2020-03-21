@@ -65,6 +65,7 @@ func (i *Interpreter) initPrimitives() {
 			i.ip, i.Err = i.rs.pop()
 			// reset on error OR if rs is empty
 			if i.Err != nil {
+				fmt.Printf("DEBUG Warning : resetting error ? : %v\n", i.Err)
 				i.Err = nil
 				i.ip = 0
 			}
@@ -150,21 +151,25 @@ func (i *Interpreter) initPrimitives() {
 		// output following texts until a " word is met,
 		// The end of string is marked with a ", even without white spaces.
 		// There MUST be a white space after the FIRST "
-		pcfa := i.addPrimitive(".\"")
+		pcfa := i.addPrimitiveImmediate(".\"")
 		i.code.addInter(pcfa, func(i *Interpreter) {
 
-			if i.rs.empty() { // interpreting from repl
+			if i.readingString { // interpreting from repl
 				// get the string from the input stream
+				fmt.Println("DEBUG : reading string from REPL")
 				token := i.getNextString()
 				fmt.Fprintf(i.writer, "%s", token)
 			} else { // interpreting from a compound word
 				// read the string from memory
-				rip, _ := i.rs.pop()                 // return ip
+				fmt.Printf("DEBUG : reading string from Memory, ip = %d, rs = %+v\n",
+					i.ip, i.rs)
+				rip := i.ip + 1
 				len := i.mem[rip]                    // get string lenth
 				var k int                            // rune pointer
 				for k = rip + 1; k <= len+rip; k++ { // retrieve string
 					fmt.Fprintf(i.writer, "%s", string(rune(i.mem[k])))
 				}
+				i.ip += len + 1
 			}
 			i.moveIP()
 		})
