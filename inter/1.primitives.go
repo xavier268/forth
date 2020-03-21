@@ -173,7 +173,7 @@ func (i *Interpreter) initPrimitives() {
 			}
 			i.moveIP()
 		})
-		// in compile mode, will write the cfa, length and string
+		// in compile mode (immediate), will write the cfa, length and string
 		// in the dictionnary
 		i.code.addCompil(pcfa, func(i *Interpreter) {
 
