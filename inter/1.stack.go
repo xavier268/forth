@@ -14,7 +14,7 @@ type stack struct {
 // newStack constructor.
 func newStack() *stack {
 	s := new(stack)
-	s.over = 15 // arbitrarily low to trigger early debugging alert
+	s.over = 15 // arbitrarily low to trigger early alert
 	s.errOver = fmt.Errorf("stack overflow ( limit %d cells )", s.over)
 	s.errUnder = fmt.Errorf("stack underflow ")
 	return s

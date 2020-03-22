@@ -63,7 +63,7 @@ func (i *Interpreter) Run() {
 		// === read and process next token
 		i.ip = 0
 		st := i.getNextToken()
-		fmt.Printf("DEBUG : just read token : %+v\n", st)
+		// fmt.Printf("DEBUG : just read token : %+v\n", st)
 		if st.t == errorT {
 			i.Err = st.err
 			continue // back to repl or finished, no more token
@@ -113,8 +113,7 @@ func (i *Interpreter) eval() {
 
 	for i.ip != 0 && i.Err == nil {
 
-		fmt.Printf("DEBUG : evaluating ip : %d -> %d, rs: %+v\n",
-			i.ip, i.mem[i.ip], i.rs.data)
+		//fmt.Printf("DEBUG : evaluating ip : %d -> %d, rs: %+v\n",	i.ip, i.mem[i.ip], i.rs.data)
 
 		// if pointing to pseudo code, we have a primitive !
 		if i.mem[i.ip] < 0 {

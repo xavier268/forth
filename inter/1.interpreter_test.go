@@ -47,7 +47,7 @@ func TestPrint1(t *testing.T) {
 
 }
 func TestPrint2(t *testing.T) {
-	// BUGGY ? TO DO - fix ??
+
 	f(t, ": t   .\" aaaa\"  .\" bb\" ;      ", "")
 	f(t, ": t   .\" aaaa\"  .\" bb\" ;  t   ", "aaaabb")
 

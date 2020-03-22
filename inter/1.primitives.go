@@ -46,11 +46,11 @@ func (i *Interpreter) initPrimitives() {
 
 	i.code = NewPrimCode(
 		func(ii *Interpreter) {
-			fmt.Println("DEBUG : Calling default interpret primitive")
+			fmt.Println("WARNING : Calling default interpret primitive")
 			i.moveIP()
 		},
 		func(i2 *Interpreter) {
-			fmt.Println("DEBUG : Calling default compile primitive")
+			fmt.Println("WARNING : Calling default compile(immediate) primitive")
 			i.moveIP()
 		})
 
@@ -65,7 +65,7 @@ func (i *Interpreter) initPrimitives() {
 			i.ip, i.Err = i.rs.pop()
 			// reset on error OR if rs is empty
 			if i.Err != nil {
-				fmt.Printf("DEBUG Warning : resetting error ? : %v\n", i.Err)
+				fmt.Printf("WARNING : resetting error ? : %v\n", i.Err)
 				i.Err = nil
 				i.ip = 0
 			}
@@ -73,10 +73,10 @@ func (i *Interpreter) initPrimitives() {
 		i.code.addCompil(pcfa, func(i *Interpreter) {
 			// immediate, during compilation
 			// write cfa
-			fmt.Printf("DEBUG : compiling cfa of ; as %d \n", pcfa)
+			// fmt.Printf("DEBUG : compiling cfa of ; as %d \n", pcfa)
 			i.mem = append(i.mem, pcfa)
 			// shift back to interpret mode
-			fmt.Println("DEBUG : Switching to interpret mode")
+			// fmt.Println("DEBUG : Switching to interpret mode")
 			i.compileMode = false
 			i.ip = 0 // to ask for a new token ...
 			return   // done !
@@ -156,13 +156,12 @@ func (i *Interpreter) initPrimitives() {
 
 			if i.readingString { // interpreting from repl
 				// get the string from the input stream
-				fmt.Println("DEBUG : reading string from REPL")
+				//fmt.Println("DEBUG : reading string from REPL")
 				token := i.getNextString()
 				fmt.Fprintf(i.writer, "%s", token)
 			} else { // interpreting from a compound word
 				// read the string from memory
-				fmt.Printf("DEBUG : reading string from Memory, ip = %d, rs = %+v\n",
-					i.ip, i.rs)
+				//fmt.Printf("DEBUG : reading string from Memory, ip = %d, rs = %+v\n", i.ip, i.rs)
 				rip := i.ip + 1
 				len := i.mem[rip]                    // get string lenth
 				var k int                            // rune pointer
@@ -179,7 +178,7 @@ func (i *Interpreter) initPrimitives() {
 
 			// fmt.Printf("DEBUG : Cmode: %v, word: %+v\n", i.compileMode, pcfa)
 			token := i.getNextString()
-			fmt.Printf("DEBUG : comile mode, read string : %s\n", token)
+			// fmt.Printf("DEBUG : comile mode, read string : %s\n", token)
 			rtok := []rune(token) // group by rune
 			if i.Err != nil {
 				return
@@ -396,7 +395,7 @@ func (i *Interpreter) initPrimitives() {
 		// create header
 		i.createHeader(token)
 		// switch to compile mode
-		fmt.Println("DEBUG : Switching to compile mode")
+		// fmt.Println("DEBUG : Switching to compile mode")
 		i.compileMode = true
 		i.ip = 0
 		i.moveIP()
