@@ -34,7 +34,7 @@ func (i *Interpreter) LoadFile(fileName string) {
 	bf := bufio.NewReader(f)
 	i.Load(bf)
 	if i.Err != nil {
-		fmt.Println("Error trying to load ", fileName, " : ", i.Err)
+		fmt.Println("WARNING : error loading ", fileName, " : ", i.Err)
 		return
 	}
 
