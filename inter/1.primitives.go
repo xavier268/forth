@@ -342,35 +342,47 @@ func (i *Interpreter) initPrimitives() {
 	})
 
 	// ( -- r) pop rs into ds
+	// implementation should account
+	// for the fact that r@, r> and >r are wrappers.
 	i.code.addInter(i.addPrimitive("r>"), func(i *Interpreter) {
-		var r int
+		var r, top int
+		top, _ = i.rs.pop()
 		r, i.Err = i.rs.pop()
 		if i.Err != nil {
 			return
 		}
 		i.Err = i.ds.push(r)
+		i.rs.push(top)
 		i.moveIP()
 	})
 
 	// ( r -- ) push r into rs
+	// implementation should account
+	// for the fact that r@, r> and >r are wrappers.
 	i.code.addInter(i.addPrimitive(">r"), func(i *Interpreter) {
-		var r int
+		var r, top int
+		top, _ = i.rs.pop()
 		r, i.Err = i.ds.pop()
 		if i.Err != nil {
 			return
 		}
 		i.Err = i.rs.push(r)
+		i.Err = i.rs.push(top)
 		i.moveIP()
 	})
 
 	// (-- r) push top of rs to ds
+	// implementation should account
+	// for the fact that r@, r> and >r are wrappers.
 	i.code.addInter(i.addPrimitive("r@"), func(i *Interpreter) {
-		var r int
+		var r, top int
+		top, _ = i.rs.pop()
 		r, i.Err = i.rs.top()
 		if i.Err != nil {
 			return
 		}
 		i.Err = i.ds.push(r)
+		i.rs.push(top)
 		i.moveIP()
 	})
 

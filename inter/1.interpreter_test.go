@@ -136,20 +136,19 @@ func TestBuildDoes(t *testing.T) {
 
 func TestReturnStack(t *testing.T) {
 
-	f(t, "r>", "")
-	f(t, "r@ .", " 0")
+	f(t, "r>", "", "underflow")
+	f(t, "r@ .", "", "underflow")
 
-	f(t, `: XX r> ; `, "")                           // forced return
-	f(t, `: XX r> ." not reached" ; XX `, "")        // stop execution by popping stack
-	f(t, ": XX r@ ; XX  here - . ", " -1")           // check r@ is pointing to the correct address
-	f(t, ": XX r@ noop  ; XX  here - . ", " -2")     // check r@ is pointing to the correct address
-	f(t, ": XX r@ noop noop ; XX  here - . ", " -3") // check r@ is pointing to the correct address
+	f(t, `: XX r> ; `, "")              // forced return
+	f(t, `: XX r> ." ok" ; XX `, "ok")  // popping stack does not affect current level
+	f(t, ": XX r@ ; XX   . ", " 0")     // check r@ is pointing to 0, the repl level
+	f(t, ": XX r@ noop  ; XX . ", " 0") // check r@ is pointing to 0, the repl level
 
 	// nested
-	f(t, `: XX r> ." test1" ; : YY XX ." test2" ; YY `, "test2")
-	f(t, `: XX ." test1" ; : YY XX ." test2" ; YY `, "test1test2")
+	f(t, `: XX r> ." test1" ; : YY XX ." test2" ; YY `, "test1")   // popping will cancel second level
+	f(t, `: XX ." test1" ; : YY XX ." test2" ; YY `, "test1test2") // no popping - check consistency
 
-	// balanced rs tests
+	// use rs as temp storage
 	f(t, ` : test >r r> ; 1000  test 2000 .  .`, " 2000 1000")
 
 }
