@@ -21,6 +21,7 @@ func TestGetNextToken(t *testing.T) {
 
 	nt(t, "1  ( lkj  )    3", "1 1", "1 3")
 	nt(t, "1  ( lkj  )", "1 1")
+	nt(t, "( lkj  ) 1 ", "1 1")
 	nt(t, "1  ( lkj  ", "1 1")
 	nt(t, "1  ) lkj  ", "1 1")
 

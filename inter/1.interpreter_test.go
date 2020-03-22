@@ -163,7 +163,8 @@ func TestVariable(t *testing.T) {
 
 func TestComment(t *testing.T) {
 
-	f(t, "2 3 ( 55 kjhkjh ) + ", "")
+	f(t, "2 3 ( 55 kjhkjh )  + . ", " 5")
+	f(t, "2 3 ( 55 kjhkjh ) ( 66 ) + . ", " 5")
 	f(t, "2 3 + . ", " 5")
 	f(t, "2 ( ; kjhkjh ) 3 . ", " 3")
 	f(t, "2 3 ( 33 ) 4 . + .", " 4 5")
@@ -176,19 +177,17 @@ func TestComment(t *testing.T) {
 }
 func TestHereAllot(t *testing.T) {
 
-	t.Skip()
-
-	f(t, "HERE @", "", true)
-	f(t, "HERE HERE - . ", " 0")
-	f(t, "HERE 1 - @", "")
-	f(t, "HERE 3 ALLOT HERE - . ", " -3")
-	f(t, "55 , HERE 1 - @ . ", " 55")
-	f(t, "2 ALLOT 55  HERE 2 - !  HERE 2 - @ .  ", " 55")
+	f(t, "here @", "", true)
+	f(t, "here here - . ", " 0")
+	f(t, "here 1 - @", "")
+	f(t, "here 3 allot here - . ", " -3")
+	f(t, "55 , here 1 - @ . ", " 55")
+	f(t, "2 allot 55  here 2 - !  here 2 - @ .  ", " 55")
 
 	f(t, ",", "", true) // ds underflow
-	f(t, "HERE 1000 , HERE - .", " -1")
-	f(t, "666 , 888 , HERE 1 - @ . ", " 888")
-	f(t, "666 , 888 , HERE 1 - @ . HERE 2 - @ . ", " 888 666")
+	f(t, "here 1000 , here - .", " -1")
+	f(t, "666 , 888 , here 1 - @ . ", " 888")
+	f(t, "666 , 888 , here 1 - @ . here 2 - @ . ", " 888 666")
 }
 
 func TestNoop(t *testing.T) {

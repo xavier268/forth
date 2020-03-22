@@ -71,7 +71,7 @@ func (i *Interpreter) getNextToken() scanResult {
 
 	r.token = i.scanner.Text()
 
-	// slurp comments
+	// slurp comments if needed
 	if r.token == "(" {
 		for r.token[len(r.token)-1:] != ")" {
 			if !i.scanner.Scan() {
@@ -81,15 +81,9 @@ func (i *Interpreter) getNextToken() scanResult {
 			}
 			r.token = i.scanner.Text()
 		}
-		// load new non-comment token
-		if !i.scanner.Scan() {
-			// EOF
-			i.Err = io.EOF
-			r.err = i.Err
-			r.t = errorT
-			return r
-		}
-		r.token = i.scanner.Text()
+		// then tail-recurse,
+		// you can have multiple successive comments ...
+		return i.getNextToken()
 	}
 
 	// try to decode token
