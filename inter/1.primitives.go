@@ -215,21 +215,21 @@ func (i *Interpreter) initPrimitives() {
 			i.Err = errors.New("you cannot call '[' except when already in compile mode")
 		})
 		i.code.addCompil(pcfa, func(i *Interpreter) {
-			fmt.Printf("DEBUG : before [,  ip:%d and rs:%+v\n", i.ip, i.rs.data)
+			//fmt.Printf("DEBUG : before [,  ip:%d and rs:%+v\n", i.ip, i.rs.data)
 			//i.ip, i.Err = i.rs.pop() // pop out of the wrapper
 			i.compileMode = false
 			i.ip = 0 // pop in a normal interpreting state
-			fmt.Printf("DEBUG : after [, now ip:%d and rs:%+v\n", i.ip, i.rs.data)
+			//fmt.Printf("DEBUG : after [, now ip:%d and rs:%+v\n", i.ip, i.rs.data)
 		})
 	}
 
 	// enter into compil mode
 	// rs is unchanged
 	i.code.addInter(i.addPrimitive("]"), func(i *Interpreter) {
-		fmt.Printf("DEBUG : before ],  ip:%d and rs:%+v\n", i.ip, i.rs.data)
+		//fmt.Printf("DEBUG : before ],  ip:%d and rs:%+v\n", i.ip, i.rs.data)
 		i.compileMode = true
 		i.ip = 0 // trigger next word read
-		fmt.Printf("DEBUG : after ],  ip:%d and rs:%+v\n", i.ip, i.rs.data)
+		//fmt.Printf("DEBUG : after ],  ip:%d and rs:%+v\n", i.ip, i.rs.data)
 	})
 
 	// make last word immediate
