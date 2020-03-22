@@ -1,6 +1,7 @@
 package inter
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 )
@@ -45,12 +46,14 @@ func (i *Interpreter) moveIP() {
 func (i *Interpreter) initPrimitives() {
 
 	i.code = NewPrimCode(
-		func(ii *Interpreter) {
-			fmt.Println("WARNING : Calling default interpret primitive")
+		func(i1 *Interpreter) {
+			fmt.Printf("WARNING : Calling default interpret primitive, ip:%d->%d\n",
+				i1.ip, i1.mem[i1.ip])
 			i.moveIP()
 		},
 		func(i2 *Interpreter) {
-			fmt.Println("WARNING : Calling default compile(immediate) primitive")
+			fmt.Printf("WARNING : Calling default compile(immediate) primitive, ip:%d->%d\n",
+				i2.ip, i2.mem[i2.ip])
 			i.moveIP()
 		})
 
@@ -65,7 +68,7 @@ func (i *Interpreter) initPrimitives() {
 			i.ip, i.Err = i.rs.pop()
 			// reset on error OR if rs is empty
 			if i.Err != nil {
-				fmt.Printf("WARNING : resetting error ? : %v\n", i.Err)
+				fmt.Printf("WARNING : resetting error ? : %v, (ip:%d, rs:%+v)\n", i.Err, i.ip, i.rs.data)
 				i.Err = nil
 				i.ip = 0
 			}
@@ -101,7 +104,9 @@ func (i *Interpreter) initPrimitives() {
 	})
 
 	// noop does nothing.
-	i.addPrimitive("noop")
+	i.code.addInter(i.addPrimitive("noop"), func(i *Interpreter) {
+		i.moveIP()
+	})
 
 	// info will print a dump output
 	i.code.addInter(i.addPrimitive("info"), func(i *Interpreter) {
@@ -203,15 +208,28 @@ func (i *Interpreter) initPrimitives() {
 	})
 
 	// enter into intrepretation mode, immediate word
-	i.code.addInter(i.addPrimitiveImmediate("["), func(i *Interpreter) {
-		i.compileMode = false
-		i.moveIP()
-	})
+	// rs is unchanged
+	{
+		pcfa := i.addPrimitiveImmediate("[")
+		i.code.addInter(pcfa, func(i *Interpreter) {
+			i.Err = errors.New("you cannot call '[' except when already in compile mode")
+		})
+		i.code.addCompil(pcfa, func(i *Interpreter) {
+			fmt.Printf("DEBUG : before [,  ip:%d and rs:%+v\n", i.ip, i.rs.data)
+			//i.ip, i.Err = i.rs.pop() // pop out of the wrapper
+			i.compileMode = false
+			i.ip = 0 // pop in a normal interpreting state
+			fmt.Printf("DEBUG : after [, now ip:%d and rs:%+v\n", i.ip, i.rs.data)
+		})
+	}
 
 	// enter into compil mode
+	// rs is unchanged
 	i.code.addInter(i.addPrimitive("]"), func(i *Interpreter) {
+		fmt.Printf("DEBUG : before ],  ip:%d and rs:%+v\n", i.ip, i.rs.data)
 		i.compileMode = true
-		i.moveIP()
+		i.ip = 0 // trigger next word read
+		fmt.Printf("DEBUG : after ],  ip:%d and rs:%+v\n", i.ip, i.rs.data)
 	})
 
 	// make last word immediate

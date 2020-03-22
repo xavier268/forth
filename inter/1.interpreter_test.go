@@ -98,6 +98,19 @@ func TestConstantAndForget(t *testing.T) {
 
 }
 
+func TestBrackets(t *testing.T) {
+	f(t, ": test noop [ 1000  . ] 5500 . ; ", " 1000")
+	f(t, ": test noop [ 1000  . ] 5500 . ; test ", " 1000 5500")
+
+	// opening bracket in intrepreted mode is illegal
+	f(t, " [ 1 . ] 2 . ", "", "cannot call [ when not in compile mode")
+
+	// closing bracket will move into compile mode ... exit with ;
+	f(t, "  ] 2 . ; ", "")
+	f(t, "  here ] noop noop ; here swap - . ", " 3") // 2(noop) + 1(;) = 3 cells were written
+
+}
+
 func TestBuildDoes(t *testing.T) {
 
 	t.Skip()
