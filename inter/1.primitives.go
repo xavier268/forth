@@ -384,7 +384,7 @@ func (i *Interpreter) initPrimitives() {
 		// create header
 		i.createHeader(token)
 		// switch to compile mode
-		fmt.Println("Switching to compile mode")
+		fmt.Println("DEBUG : Switching to compile mode")
 		i.compileMode = true
 		i.ip = 0
 		i.moveIP()

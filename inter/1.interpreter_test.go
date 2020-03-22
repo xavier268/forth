@@ -136,20 +136,21 @@ func TestBuildDoes(t *testing.T) {
 
 func TestReturnStack(t *testing.T) {
 
-	f(t, "r>", "", "STACK UNDERFLOW")
-	f(t, "r@", "", "STACK UNDERFLOW")
+	f(t, "r>", "")
+	f(t, "r@ .", " 0")
 
-	t.Skip()
+	f(t, `: XX r> ; `, "")                           // forced return
+	f(t, `: XX r> ." not reached" ; XX `, "")        // stop execution by popping stack
+	f(t, ": XX r@ ; XX  here - . ", " -1")           // check r@ is pointing to the correct address
+	f(t, ": XX r@ noop  ; XX  here - . ", " -2")     // check r@ is pointing to the correct address
+	f(t, ": XX r@ noop noop ; XX  here - . ", " -3") // check r@ is pointing to the correct address
 
-	f(t, `: XX r> ; `, "")
-	f(t, `: XX r> ; XX `, "", true) // stack underflow
-	f(t, ": XX r>  ; : YY XX ; YY  HERE - . ", " -1")
-
-	// unbalanced return stack test, implemenation dependent
-	f(t, `: XX r>  ; : YY XX ." never displayed " ; YY  HERE - . `, " -19")
+	// nested
+	f(t, `: XX r> ." test1" ; : YY XX ." test2" ; YY `, "test2")
+	f(t, `: XX ." test1" ; : YY XX ." test2" ; YY `, "test1test2")
 
 	// balanced rs tests
-	f(t, ` : test  >r dup r> ; 1000 2000 test . . .`, " 2000 1000 1000")
+	f(t, ` : test >r r> ; 1000  test 2000 .  .`, " 2000 1000")
 
 }
 
