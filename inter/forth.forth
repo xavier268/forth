@@ -4,7 +4,7 @@
 ( =============================================== )
 ( Compiling forth.forth definitions ) 
 
-: version 1 2 ;     ( -- major minor )     
+: version 0 4 ;     ( -- major minor )     
                     ( marker for preloaded  FORTH definitions )
 
 : .version          ( -- display version major. minor )
