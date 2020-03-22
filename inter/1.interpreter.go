@@ -89,8 +89,10 @@ func (i *Interpreter) Run() {
 			switch {
 			case !i.compileMode || // normal interpretation
 				i.words[st.v-1].immediate: // or immediate
+				i.rs.push(0) // push repl level
 				i.ip = st.v
 				i.eval()
+				i.ip, _ = i.rs.pop()
 			case i.compileMode:
 				// normal compilation
 				i.mem = append(i.mem, st.v)
@@ -111,7 +113,8 @@ func (i *Interpreter) eval() {
 
 	for i.ip != 0 && i.Err == nil {
 
-		fmt.Printf("DEBUG: evaluating ip : %d -> %d\n", i.ip, i.mem[i.ip])
+		fmt.Printf("DEBUG : evaluating ip : %d -> %d, rs: %+v\n",
+			i.ip, i.mem[i.ip], i.rs.data)
 
 		// if pointing to pseudo code, we have a primitive !
 		if i.mem[i.ip] < 0 {

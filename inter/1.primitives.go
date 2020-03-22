@@ -177,19 +177,23 @@ func (i *Interpreter) initPrimitives() {
 		// in the dictionnary
 		i.code.addCompil(pcfa, func(i *Interpreter) {
 
-			fmt.Printf("DEBUG : Cmode: %v, word: %+v\n", i.compileMode, pcfa)
+			// fmt.Printf("DEBUG : Cmode: %v, word: %+v\n", i.compileMode, pcfa)
 			token := i.getNextString()
+			fmt.Printf("DEBUG : comile mode, read string : %s\n", token)
 			rtok := []rune(token) // group by rune
 			if i.Err != nil {
 				return
 			}
-			fmt.Printf("DEBUG : Cmode: %v, word: %+v\n", i.compileMode, pcfa)
+			// fmt.Printf("DEBUG : Cmode: %v, word: %+v\n", i.compileMode, pcfa)
 			i.mem = append(i.mem, pcfa, len(rtok))
 			// store the token, rune by rune
 			for _, r := range rtok {
 				i.mem = append(i.mem, int(r))
 			}
-			i.moveIP()
+			// in compile mode + immediate, so just make ip = 0
+			// to force reading next token
+			i.ip = 0
+			// i.moveIP()
 		})
 	}
 
@@ -394,10 +398,12 @@ func (i *Interpreter) initPrimitives() {
 			return
 		}
 		nfa2forget := i.lookup(token)
-		i.lastNfa = i.mem[nfa2forget]
+		// token not found, do nothing !
 		if i.Err != nil {
 			return
 		}
+		i.lastNfa = i.mem[nfa2forget]
+
 		// Cleanup mem
 		i.mem = i.mem[:nfa2forget]
 		// Cleanup words that are not accessible anymore
