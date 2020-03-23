@@ -15,8 +15,9 @@ func (i *Interpreter) addPrimitive(name string) (pcode int) {
 	// create a pcode from the nfa,
 	// compile the pseudo code in the cfa
 	pcode = -w.nfa
-	colon := -i.lookup(";")
+	colon := -i.lookupFrom(i.lastPrimitiveNfa, ";")
 	i.mem = append(i.mem, pcode, colon)
+	i.lastPrimitiveNfa = i.lastNfa
 	return pcode
 }
 
@@ -29,8 +30,9 @@ func (i *Interpreter) addPrimitiveImmediate(name string) (pcode int) {
 	// create a pcode from the nfa,
 	// compile the pseudo code in the cfa
 	pcode = -w.nfa
-	colon := -i.lookup(";")
+	colon := -i.lookupFrom(i.lastPrimitiveNfa, ";")
 	i.mem = append(i.mem, pcode, colon)
+	i.lastPrimitiveNfa = i.lastNfa
 	return pcode
 }
 
@@ -152,6 +154,36 @@ func (i *Interpreter) initPrimitives() {
 	i.code.addInter(i.addPrimitive("bye"), func(i *Interpreter) {
 		i.terminate = true
 		i.Err = fmt.Errorf("requested termination")
+		i.moveIP()
+	})
+
+	// tick puts on the data stack the CFA of the following word
+	i.code.addInter(i.addPrimitive("'"), func(i *Interpreter) {
+		token := i.getNextString()
+		if i.Err != nil {
+			return
+		}
+		cfa := 1 + i.lookup(token)
+		if i.Err != nil {
+			return
+		}
+		i.Err = i.ds.push(cfa)
+		i.moveIP()
+	})
+
+	// start compiling a compound word
+	// do not write the cfa of : in the dictionnary.
+	i.code.addInter(i.addPrimitive(":"), func(i *Interpreter) {
+		token := i.getNextString()
+		if i.Err != nil {
+			return
+		}
+		// create header
+		i.createHeader(token)
+		// switch to compile mode
+		// fmt.Println("DEBUG : Switching to compile mode")
+		i.compileMode = true
+		i.ip = 0
 		i.moveIP()
 	})
 
@@ -452,22 +484,6 @@ func (i *Interpreter) initPrimitives() {
 		}
 		i.Err = i.ds.push(r)
 		i.rs.push(top)
-		i.moveIP()
-	})
-
-	// start compiling a compound word
-	// do not write the cfa of : in the dictionnary.
-	i.code.addInter(i.addPrimitive(":"), func(i *Interpreter) {
-		token := i.getNextString()
-		if i.Err != nil {
-			return
-		}
-		// create header
-		i.createHeader(token)
-		// switch to compile mode
-		// fmt.Println("DEBUG : Switching to compile mode")
-		i.compileMode = true
-		i.ip = 0
 		i.moveIP()
 	})
 

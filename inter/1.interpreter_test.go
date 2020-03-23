@@ -83,6 +83,13 @@ func TestOperations(t *testing.T) {
 	f(t, " 1 . .", " 1", "UNDERFLOW")
 
 }
+
+func TestTick(t *testing.T) {
+	f(t, "' ; .", " 3")                           // implementation dependant
+	f(t, "' ", "")                                // ignore empty tokens
+	f(t, "' unknooooown ", "", "not found token") // error on unknown token
+
+}
 func TestConstantAndForget(t *testing.T) {
 
 	t.Skip()
