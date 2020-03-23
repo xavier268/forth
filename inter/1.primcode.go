@@ -46,7 +46,8 @@ func (p *PrimCode) do(i *Interpreter, pcfa int) {
 	if i.compileMode {
 		f := p.compil[pcfa]
 		if f == nil {
-			p.defCompil(i)
+			fmt.Printf("WARNING : no specific immediate compile behaviour defined for %d, using inter\n", pcfa)
+			p.inter[pcfa](i)
 			return
 		}
 		f(i)

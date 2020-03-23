@@ -45,10 +45,11 @@
 ( -- value ) ( x : gets the constant value on stack )
 : constant <builds , does> @ ;
 
-( ============== compile =============================================== )
-: compile   ( immediately get the cfa of the following word and compile it )
-    [ 
-        ' ' ,
-        ' , ,
-    ]
+( ==================== compile ========================================= )
+
+: compile ( compile the cfa of the following word in the memory )
+    [     
+    ' '  @      ,   ( indirection required to access the pseudo code )
+    ' ,         , 
+    ] 
     ; immediate

@@ -260,6 +260,15 @@ func TestNoop(t *testing.T) {
 
 }
 
+func TestCompile(t *testing.T) {
+	f(t, ": test compile + ; 1 2 test . ", "3")
+	f(t, ": test noop compile + noop ; 1 2 test . ", "3")
+	f(t, ": test  [ ' + , ' . , ] ; 1 2 test ", "3")
+	// TODO - unexpected bug ?!
+	f(t, ": test  compile + compile . ; 1 2 test ", "3")
+
+}
+
 // ===================================================================
 
 // generic test.
