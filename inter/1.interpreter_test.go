@@ -99,18 +99,12 @@ func TestConstantAndForget(t *testing.T) {
 }
 
 func TestBranch(t *testing.T) {
-	f(t, " 3 branch", "", "not in this context !")
 
-	f(t, ": t 0 branch .\" ok!\" ;", "")
-	f(t, ": t 0 branch .\" ok!\" ; t", "ok!")
+	f(t, ": t branch [ 0 , ] .\" aaaa\" ; t ", "aaaa") // do nothing
+	f(t, " 22 branch ", "", "not in this context")     // fail
 
-	f(t, ": t 2 branch 55 .\" ok!\" ; t", "ok!")
-	f(t, ": t 0 branch 55 .\" ok!\" ; t .", "ok! 55")
-	f(t, "33 : t 2 branch 55 .\" ok!\" ; t .", "ok! 33")
-
-	f(t, " : t -1 branch ; t", "", "data stack underflow")     // branch tries to conume recursively
-	f(t, "0  : t -1 branch .\" ok!\" ; t", "ok!")              // loop once, then move on ...
-	f(t, "0 0  -2 : t dup . branch .\" ok!\" ; t", " -2 0ok!") // loop once, then move on ...
+	f(t, "33 : t branch [ 2 , ] 55 ; t .", " 33")
+	f(t, "33 : t branch [ 0 , ] 55 ; t .", " 55")
 
 }
 func TestBrackets(t *testing.T) {

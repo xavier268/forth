@@ -12,7 +12,7 @@
             "program": "${workspaceFolder}/inter/",
 
             // filter selected tests
-            "args": ["-test.run" , "TestPrint"]
+            "args": ["-test.run" , "TestBranch"]
 
         },{
             "name": "Launch all tests package",

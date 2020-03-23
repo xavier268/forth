@@ -97,23 +97,26 @@ func (i *Interpreter) initPrimitives() {
 			i.moveIP()
 		})
 
-	// ( radr -- ) branch execution to the relative address that is on stack
+	// ( -- ) branch execution to an offset address,
+	// offset is read from the next cell
+	// use offset = 0 for normal execution flow.
 	i.code.addInter(i.addPrimitive("branch"),
 		func(i *Interpreter) {
-			fmt.Printf("DEBUG : entering branch @ ip : %d, rs: %+v\n", i.ip, i.rs.data)
+			//fmt.Printf("DEBUG : entering branch @ ip : %d, rs: %+v\n", i.ip, i.rs.data)
 
-			var next, radr int
+			var next, offset int
 			if len(i.rs.data) < 2 || i.ip == 0 {
 				i.Err = errors.New("you cannot use 'branch' in this context")
 				return
 			}
 			next, _ = i.rs.pop()
-			radr, i.Err = i.ds.pop()
+			offset = i.mem[next]
+			//fmt.Println("DEBUG : offset is ", offset)
 			if i.Err != nil {
 				return
 			}
-			i.rs.push(radr + next)
-			fmt.Printf("DEBUG : exiting branch @ ip : %d, rs: %+v\n", i.ip, i.rs.data)
+			i.rs.push(offset + next + 1) // skip radr cell for normal flow
+			//fmt.Printf("DEBUG : exiting branch @ ip : %d, rs: %+v\n", i.ip, i.rs.data)
 
 			i.moveIP()
 		})
