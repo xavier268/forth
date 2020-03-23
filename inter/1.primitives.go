@@ -199,6 +199,18 @@ func (i *Interpreter) initPrimitives() {
 		i.moveIP()
 	})
 
+	// ( nfa -- ) print the name corresponding to the nfa
+	// no spacing, no cr included.
+	i.code.addInter(i.addPrimitive(".name"), func(i *Interpreter) {
+		var nfa int
+		nfa, i.Err = i.ds.pop()
+		w, ok := i.words[nfa]
+		if ok && w != nil && w.name != "" {
+			fmt.Fprint(i.writer, w.name)
+		}
+		i.moveIP()
+	})
+
 	// info will print a dump output
 	i.code.addInter(i.addPrimitive("info"), func(i *Interpreter) {
 		i.dump()
@@ -233,13 +245,14 @@ func (i *Interpreter) initPrimitives() {
 	})
 
 	// ( n -- ) dot, print ds
+	// no space added
 	i.code.addInter(i.addPrimitive("."), func(i *Interpreter) {
 		var n int
 		n, i.Err = i.ds.pop()
 		if i.Err != nil {
 			return
 		}
-		fmt.Fprintf(i.writer, " %s", strconv.FormatInt(int64(n), i.getBase()))
+		fmt.Fprintf(i.writer, "%s", strconv.FormatInt(int64(n), i.getBase()))
 		i.moveIP()
 	})
 
@@ -393,6 +406,18 @@ func (i *Interpreter) initPrimitives() {
 	// ( -- ) emit carriage return
 	i.code.addInter(i.addPrimitive("cr"), func(i *Interpreter) {
 		fmt.Fprintln(i.writer)
+		i.moveIP()
+	})
+
+	// ( -- ) emit space
+	i.code.addInter(i.addPrimitive("space"), func(i *Interpreter) {
+		fmt.Fprint(i.writer, " ")
+		i.moveIP()
+	})
+
+	// ( -- ) emit tab
+	i.code.addInter(i.addPrimitive("tab"), func(i *Interpreter) {
+		fmt.Fprint(i.writer, "\t")
 		i.moveIP()
 	})
 

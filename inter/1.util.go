@@ -119,5 +119,5 @@ func (i *Interpreter) isPrimitive(w *word) bool {
 	if w == nil {
 		return false
 	}
-	return i.mem[w.cfa] < 0
+	return w.nfa <= i.lastPrimitiveNfa
 }
