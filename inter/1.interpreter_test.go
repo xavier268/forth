@@ -86,6 +86,7 @@ func TestOperations(t *testing.T) {
 
 func TestTick(t *testing.T) {
 	f(t, "' ; .", " 3")                           // implementation dependant
+	f(t, "' literal .", " 6")                     // implementation dependant
 	f(t, "' ", "")                                // ignore empty tokens
 	f(t, "' unknooooown ", "", "not found token") // error on unknown token
 
@@ -198,6 +199,12 @@ func TestVariable(t *testing.T) {
 
 	f(t, "VARIABLE v v @ .", " 0")
 	f(t, "VARIABLE v 555 v ! v @ . ", " 555")
+}
+
+func TestExecute(t *testing.T) {
+	f(t, " 2 5 ' + ", "")
+	f(t, " 2 5 ' + execute . ", " 7")
+	f(t, ": r execute . ; 2 5 ' + r ", " 7")
 }
 
 func TestComment(t *testing.T) {

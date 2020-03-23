@@ -192,6 +192,13 @@ func (i *Interpreter) initPrimitives() {
 		i.moveIP()
 	})
 
+	// ( cfa -- ) execute the cfa that is on the data stack.
+	i.code.addInter(i.addPrimitive("execute"), func(i *Interpreter) {
+		i.ip, i.Err = i.ds.pop()
+		i.eval()
+		i.moveIP()
+	})
+
 	// info will print a dump output
 	i.code.addInter(i.addPrimitive("info"), func(i *Interpreter) {
 		i.dump()
