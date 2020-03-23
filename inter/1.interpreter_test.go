@@ -93,16 +93,14 @@ func TestTick(t *testing.T) {
 }
 func TestConstantAndForget(t *testing.T) {
 
-	t.Skip()
+	f(t, "constant", "", true)
+	f(t, "1 constant", "", true)
+	f(t, "55 constant CC CC . ", "55")
+	f(t, "55 constant CC : CCC CC CC + . ; CCC", "110")
 
-	f(t, "CONSTANT", "", true)
-	f(t, "1 CONSTANT", "", true)
-	f(t, "55 CONSTANT CC CC . ", "55")
-	f(t, "55 CONSTANT CC : CCC CC CC + . ; CCC", "110")
-
-	f(t, "4 CONSTANT Q Q . FORGET Q Q . ", "4", true)
-	f(t, "4 CONSTANT Q : R Q ;  FORGET Q ", "")
-	f(t, "4 CONSTANT Q : R Q ;  FORGET Q R ", "", true)
+	f(t, "4 constant Q Q . forget Q Q . ", "4", true)
+	f(t, "4 constant Q : R Q ;  forget Q ", "")
+	f(t, "4 constant Q : R Q ;  forget Q R ", "", true)
 
 }
 
@@ -140,9 +138,7 @@ func TestBrackets(t *testing.T) {
 
 func TestBuildDoes(t *testing.T) {
 
-	t.Skip()
-
-	in := `	: DEF [ ." aa"] ." bb" <BUILDS ." cc" DOES> ." dd" ; `
+	in := `	: DEF [ ." aa"] ." bb" <builds ." cc" does> ." dd" ; `
 	out := "aa"
 	f(t, in, out)
 
@@ -171,7 +167,6 @@ func TestBuildDoes(t *testing.T) {
 	in += " TT drop"
 	out += "dd"
 	f(t, in, out)
-
 }
 
 func TestReturnStack(t *testing.T) {
@@ -195,10 +190,9 @@ func TestReturnStack(t *testing.T) {
 
 func TestVariable(t *testing.T) {
 
-	t.Skip()
-
-	f(t, "VARIABLE v v @ .", "0")
-	f(t, "VARIABLE v 555 v ! v @ . ", "555")
+	f(t, " variable v v @ .", "", "underflow")
+	f(t, "0 variable v v @ .", "0")
+	f(t, "0 variable v 555 v ! v @ . ", "555")
 }
 
 func TestExecute(t *testing.T) {

@@ -99,6 +99,91 @@ func (i *Interpreter) initPrimitives() {
 			i.moveIP()
 		})
 
+	// ( -- ) $$does$$ is an internal word, that will be called
+	// from the object to run the executable part defined with does>
+	// the executable code will be passed the pfa of the built object
+	// on the data stack
+	i.code.addInter(i.addPrimitive("$$does$$"),
+		func(i *Interpreter) {
+			var cadr, pfa int
+			if i.rs.empty() {
+				i.Err = fmt.Errorf("the return stack is inconsistent(empty) while interpreting $$does$$")
+			}
+			fmt.Printf("DEBUG : executig $$does$$. ip:%d, rs:%+v\n", i.ip, i.rs.data)
+
+			// get executable code adress
+			cadr = 1 + i.ip
+
+			// push pfa on ds
+			pfa = 1 + cadr
+			i.ds.push(pfa)
+
+			// jump to executable code
+			i.ip = i.mem[cadr]
+
+			// return will be handled by executable code ...
+		})
+
+	// ( -- ) does> writes the address of the executable code
+	// into the reserved sapce prepared by <builds
+	// whose address is in the return stack.
+	i.code.addInter(i.addPrimitive("does>"),
+		func(i *Interpreter) {
+			fmt.Printf("DEBUG : entering 'does>' with ip:%d,rs%+v\n", i.ip, i.rs.data)
+
+			if i.rs.empty() {
+				i.Err = errors.New("cannot use 'does>' in this context")
+				return
+			}
+			// get the address of the executable code
+			addrProc2, _ := i.rs.pop()
+
+			// get the reserverd word to store that address
+			addrResevd, _ := i.rs.pop()
+			// store the instructions set of Proc2
+			// (immediately following current ip) in the reserved address
+			fmt.Printf("DEBUG : writing %d in addr %d\n", addrProc2, addrResevd)
+			i.mem[addrResevd] = addrProc2
+
+			// return, do not execute further !
+			i.ip, i.Err = i.rs.pop()
+
+		})
+
+	// ( -- ) <builds creates a header, and add after it,
+	// the pcode for $$does$$ and the address of the executable code
+	i.code.addInter(i.addPrimitive("<builds"),
+		func(i *Interpreter) {
+			token := i.getNextString()
+			if i.Err != nil {
+				i.Err = errors.New("expected token name but got EOF")
+				return
+			}
+			if len(i.rs.data) < 2 {
+				i.Err = errors.New("'<builds' cannot be called in this context")
+				return
+			}
+			// create header
+			i.createHeader(token)
+
+			// get the pseudo-cfa of $$does$$
+			cfad := -i.lookupFrom(i.lastPrimitiveNfa, "$$does$$")
+
+			// store $$DOES$$ pcfa, and
+			// an empty slot,that DOES> will fill
+			// write -1000 in it to generate errors if not filled correctly !
+			i.mem = append(i.mem, cfad, -1000)
+
+			// save the address of the reserved slot
+			// in the return stack, just under the top
+			top, _ := i.rs.pop()
+			i.rs.push(len(i.mem) - 1)
+			i.rs.push(top)
+
+			// continue interpreting next <BUILDS instructions
+			i.moveIP()
+		})
+
 	// ( -- ) branch execution to an offset address,
 	// offset is read from the next cell
 	// use offset = 0 for normal execution flow.

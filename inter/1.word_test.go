@@ -7,8 +7,6 @@ import (
 
 func TestLookupToken(t *testing.T) {
 
-	//t.Skip()
-
 	var s string
 	var err error
 	var nfa int
