@@ -242,7 +242,7 @@ func (i *Interpreter) initPrimitives() {
 		i.moveIP()
 	})
 
-	// tick puts on the data stack the CFA of the following word
+	// ( -- cfa ) tick puts on the data stack the CFA of the following word
 	i.code.addInter(i.addPrimitive("'"), func(i *Interpreter) {
 		token := i.getNextString()
 		if i.Err != nil {

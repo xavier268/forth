@@ -194,7 +194,12 @@ func TestVariable(t *testing.T) {
 	f(t, "0 variable v v @ .", "0")
 	f(t, "0 variable v 555 v ! v @ . ", "555")
 }
+func TestIp(t *testing.T) {
 
+	f(t, "ip . ", "0")
+	f(t, ": t ip ip - . ; t ", "-1")
+	f(t, ": t ip noop ip - . ; t ", "-2")
+}
 func TestExecute(t *testing.T) {
 	f(t, " 2 5 ' + ", "")
 	f(t, " 2 5 ' + execute . ", "7")
