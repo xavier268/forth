@@ -421,7 +421,7 @@ func (i *Interpreter) initPrimitives() {
 		//fmt.Printf("DEBUG : after ],  ip:%d and rs:%+v\n", i.ip, i.rs.data)
 	})
 
-	// make last word immediate
+	// make last word immediate,
 	i.code.addInter(i.addPrimitive("immediate"), func(i *Interpreter) {
 		i.words[i.lastNfa].immediate = true
 		i.moveIP()
