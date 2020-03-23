@@ -106,6 +106,16 @@ func TestBranch(t *testing.T) {
 	f(t, "33 : t branch [ 2 , ] 55 ; t .", " 33")
 	f(t, "33 : t branch [ 0 , ] 55 ; t .", " 55")
 
+	f(t, "0 : t 0branch [ 0 , ] .\" aaaa\" ; t ", "aaaa")           // do nothing
+	f(t, "1 : t 0branch [ 0 , ] .\" aaaa\" ; t ", "aaaa")           // do nothing
+	f(t, ": t 0branch [ 0 , ] .\" aaaa\" ; t ", "", "ds underflow") // fail
+	f(t, "1 0branch ", "", "not in this context")                   // fail
+
+	f(t, "33 : t 0 0branch [ 2 , ] 55 ; t .", " 33")
+	f(t, "33 : t 0 0branch [ 0 , ] 55 ; t .", " 55")
+	f(t, "33 : t 1 0branch [ 2 , ] 55 ; t .", " 55")
+	f(t, "33 : t 1 0branch [ 0 , ] 55 ; t .", " 55")
+
 }
 func TestBrackets(t *testing.T) {
 	f(t, ": test noop [ 1000  . ] 5500 . ; ", " 1000")
