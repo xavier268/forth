@@ -45,6 +45,7 @@ func (i *Interpreter) moveIP() {
 // define implementation for all primitives.
 func (i *Interpreter) initPrimitives() {
 
+	// initialize an empty PrimCode structure.
 	i.code = NewPrimCode(
 		func(i1 *Interpreter) {
 			fmt.Printf("WARNING : Calling default interpret primitive, ip:%d->%d\n",
@@ -93,6 +94,27 @@ func (i *Interpreter) initPrimitives() {
 			// get it, and skip it
 			i.ip++
 			i.ds.push(i.mem[i.ip])
+			i.moveIP()
+		})
+
+	// ( radr -- ) branch execution to the relative address that is on stack
+	i.code.addInter(i.addPrimitive("branch"),
+		func(i *Interpreter) {
+			fmt.Printf("DEBUG : entering branch @ ip : %d, rs: %+v\n", i.ip, i.rs.data)
+
+			var next, radr int
+			if len(i.rs.data) < 2 || i.ip == 0 {
+				i.Err = errors.New("you cannot use 'branch' in this context")
+				return
+			}
+			next, _ = i.rs.pop()
+			radr, i.Err = i.ds.pop()
+			if i.Err != nil {
+				return
+			}
+			i.rs.push(radr + next)
+			fmt.Printf("DEBUG : exiting branch @ ip : %d, rs: %+v\n", i.ip, i.rs.data)
+
 			i.moveIP()
 		})
 
