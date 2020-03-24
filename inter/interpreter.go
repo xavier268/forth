@@ -113,7 +113,7 @@ func (i *Interpreter) eval() {
 
 	for i.ip != 0 && i.Err == nil {
 
-		//fmt.Printf("DEBUG : evaluating ip : %d -> %d, rs: %+v\n",	i.ip, i.mem[i.ip], i.rs.data)
+		fmt.Printf("DEBUG : evaluating ip : %d -> %d, rs: %+v\n", i.ip, i.mem[i.ip], i.rs.data)
 
 		// if pointing to pseudo code, we have a primitive !
 		if i.mem[i.ip] < 0 {

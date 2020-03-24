@@ -45,4 +45,3 @@
 ( -- value ) ( x : gets the constant value on stack )
 : constant <builds , does> @ ;
 
-
